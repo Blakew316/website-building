@@ -34,10 +34,12 @@ BRAND = "Charlie Company Media"
 BRAND_SHORT = "Charlie Company"
 TAGLINE = "Growth infrastructure for local business."
 SITE_URL = "https://www.charliecompanymedia.com"
-PHONE = "(855) 463-5490"
-PHONE_TEL = "tel:+18554635490"
-ADDRESS = "200 South College Street, Suite 400, Charlotte, NC 28202"
-HOURS = "Monday – Friday, 9:00am – 5:00pm EST"
+PHONE = "(210) 480-6345"
+PHONE_TEL = "tel:+12104806345"
+ADDRESS = "7720 University Avenue, Lubbock, TX 79423"
+MAPS_URL = "https://www.google.com/maps/search/?api=1&query=7720+University+Avenue%2C+Lubbock%2C+TX+79423"
+SOCIAL = {"facebook": "https://www.facebook.com/blake.woodruff.31", "instagram": "https://www.instagram.com/blake_woodruff24/", "linkedin": "https://www.linkedin.com/in/justin-woodruff-758b33307/"}
+HOURS = "Monday – Friday, 9:00am – 5:00pm CST"
 FORM_ENDPOINT = ""  # optional extra destination (Formspree, Zapier…); submissions always go to the built-in /api/submit
 API_BASE = "/api"  # Netlify Functions (netlify/functions): form submissions, analytics events, admin dashboard
 # Where "Client login" in the header/footer and /login/ send existing customers to view their
@@ -85,7 +87,7 @@ INDUSTRY_ITEMS = [
 ]
 SUPPORT_ITEMS = [
     ("/personal-support/", "Personal Support", "A team that knows your business", "headset"),
-    ("/phone-support/", "Phone Support", "Real people, M–F 9–5 EST", "phone"),
+    ("/phone-support/", "Phone Support", "Real people, M–F 9–5 CST", "phone"),
     ("/relationship-manager/", "Dedicated Relationship Manager", "One point of contact", "user"),
     ("/what-to-expect/", "What to Expect", "How onboarding and campaigns work", "compass"),
     ("/frequently-asked-questions/", "FAQ", "Answers to common questions", "help"),
@@ -403,17 +405,17 @@ def footer() -> str:
     industries = [(h, t) for h, t, _ in INDUSTRY_ITEMS]
     company = [(h, t) for h, t, _, _ in COMPANY_ITEMS] + [("/support/", "Contact"), ("/what-to-expect/", "What to Expect"), (CLIENT_LOGIN_URL, "Client login")]
     social = (
-        f'<a href="https://www.instagram.com/" aria-label="Instagram" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor"/></svg></a>'
-        f'<a href="https://www.facebook.com/" aria-label="Facebook" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M14 8h3V4h-3a4 4 0 00-4 4v3H7v4h3v6h4v-6h3l1-4h-4V8z"/></svg></a>'
-        f'<a href="https://www.linkedin.com/" aria-label="LinkedIn" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><rect x="3" y="9" width="4" height="12"/><circle cx="5" cy="5" r="2"/><path d="M11 21v-7a3 3 0 016 0v7M11 9v12M17 21v-7"/></svg></a>'
-        f'<a href="https://www.google.com/maps" aria-label="Google" target="_blank" rel="noopener">{I.icon("pin")}</a>'
+        f'<a href="{SOCIAL["instagram"]}" aria-label="Instagram" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor"/></svg></a>'
+        f'<a href="{SOCIAL["facebook"]}" aria-label="Facebook" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M14 8h3V4h-3a4 4 0 00-4 4v3H7v4h3v6h4v-6h3l1-4h-4V8z"/></svg></a>'
+        f'<a href="{SOCIAL["linkedin"]}" aria-label="LinkedIn" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><rect x="3" y="9" width="4" height="12"/><circle cx="5" cy="5" r="2"/><path d="M11 21v-7a3 3 0 016 0v7M11 9v12M17 21v-7"/></svg></a>'
+        f'<a href="{MAPS_URL}" aria-label="Google Maps" target="_blank" rel="noopener">{I.icon("pin")}</a>'
     )
     return f'''<footer class="site-footer"><div class="container">
   <div class="footer-grid">
     <div class="footer-brand">
       {logo()}
       <div class="reviews-badge"><span class="stars">★★★★★</span><span><strong>5,000+ five-star reviews</strong></span></div>
-      <p style="margin-top:18px"><a href="{PHONE_TEL}"><strong>{esc(PHONE)}</strong></a><br>{esc(ADDRESS)}<br><span class="small">{esc(HOURS)}</span></p>
+      <p style="margin-top:18px"><a href="{PHONE_TEL}"><strong>{esc(PHONE)}</strong></a><br><a href="{MAPS_URL}" target="_blank" rel="noopener">{esc(ADDRESS)}</a><br><span class="small">{esc(HOURS)}</span></p>
       <div class="social">{social}</div>
     </div>
     {col("Grow", grow)}
@@ -433,7 +435,15 @@ _EXT_OLD_LINK = re.compile(r'<a href="https?://(?![^"]*(?:apple\.com|google\.com
 SLUG_MAP: dict[str, str] = {}
 
 
+_OLD_PHONE = re.compile(r"(?:\(?\+?1?[\s.-]?)?\(?855\)?[\s.-]*463[\s.-]*5490")
+
+
 def finalize_html(html: str) -> str:
+    html = _OLD_PHONE.sub(PHONE, html).replace("tel:+18554635490", PHONE_TEL)
+    html = html.replace("200 South College Street, Suite 400, Charlotte, NC 28202", ADDRESS).replace("200 South College Street", "7720 University Avenue").replace("Charlotte, NC 28202", "Lubbock, TX 79423")
+    html = html.replace("Charlotte, North Carolina based", "Lubbock, Texas based").replace("Charlotte-based", "Lubbock-based")
+    html = re.sub(r"(\d(?::\d\d)?\s?[ap]m)\s*EST\b", r"\1 CST", html)
+    html = re.sub(r"(Phoenix, AZ and Charlotte, NC|Charlotte, NC and Phoenix, AZ|Charlotte, NC & Phoenix, AZ)", "Lubbock, TX", html)
     """Last pass over rendered markup: drop links to the old company's sister sites,
     rebrand search queries and remap renamed post/author URLs."""
     html = _EXT_OLD_LINK.sub(r"\1", html)
@@ -454,7 +464,8 @@ def layout(page: dict, body: str, extra_head: str = "") -> str:
     canonical = SITE_URL + path
     ld = json.dumps({
         "@context": "https://schema.org", "@type": "Organization", "name": BRAND, "url": SITE_URL,
-        "telephone": "+1-855-463-5490", "address": {"@type": "PostalAddress", "streetAddress": "200 South College Street, Suite 400", "addressLocality": "Charlotte", "addressRegion": "NC", "postalCode": "28202", "addressCountry": "US"},
+        "telephone": "+1-210-480-6345", "address": {"@type": "PostalAddress", "streetAddress": "7720 University Avenue", "addressLocality": "Lubbock", "addressRegion": "TX", "postalCode": "79423", "addressCountry": "US"},
+        "sameAs": list(SOCIAL.values()),
     })
     body = finalize_html(body)
     return f'''<!DOCTYPE html>
@@ -1619,7 +1630,7 @@ def build_about(page: dict) -> str:
 
 # ---------- FAQ ----------
 def build_faq(page: dict) -> str:
-    tail = cta_band("Still have questions?", "Talk to a real person. Our Charlotte-based team is available Monday–Friday, 9am–5pm EST.", ("Contact support", "/support/"), ("Call " + PHONE, PHONE_TEL))
+    tail = cta_band("Still have questions?", "Talk to a real person. Our Lubbock-based team is available Monday–Friday, 9am–5pm CST.", ("Contact support", "/support/"), ("Call " + PHONE, PHONE_TEL))
     return build_generic(page, "center", "Help", tail=tail)
 
 
@@ -1691,7 +1702,7 @@ def build_careers(main: dict, sub: dict) -> str:
     rot = next((b for s in main["sections"] for b in flatten(s["blocks"]) if b["type"] == "rotating_text"), None)
     bg_video = f'<div class="bg-video" aria-hidden="true"><video autoplay muted loop playsinline preload="metadata"><source src="{esc(bg)}" type="video/mp4"></video></div>' if bg else ""
     watch = f'<a class="btn btn-ghost btn-lg" href="{esc(vid["src"])}" data-lightbox="{esc(vid["src"])}">{I.icon("play")}Life at {esc(BRAND_SHORT)}</a>' if vid else ""
-    hero = f'<section class="hero">{orbs()}{bg_video}<div class="container"><div class="hero-center"><span class="eyebrow">Careers · Charlotte, NC & Phoenix, AZ</span><h1 class="words">{h1["html"]}</h1><div class="btn-row">{btn("Explore open roles", "#open-roles", "primary", "lg")}{watch}</div></div></div></section>'
+    hero = f'<section class="hero">{orbs()}{bg_video}<div class="container"><div class="hero-center"><span class="eyebrow">Careers · Lubbock, TX</span><h1 class="words">{h1["html"]}</h1><div class="btn-row">{btn("Explore open roles", "#open-roles", "primary", "lg")}{watch}</div></div></div></section>'
     rotating = f'<section class="section tight"><div class="container">{rotating_html(rot)}</div></section>' if rot else ""
     parts = [hero, rotating]
     for i, sec in enumerate(S[1:], start=1):
@@ -1700,7 +1711,7 @@ def build_careers(main: dict, sub: dict) -> str:
         blurbs = [b for b in flat if b["type"] == "blurb"]
         if imgs and len(imgs) == 3 and not blurbs:  # awards
             h = first_heading(sec["blocks"])
-            tiles = "".join(f'<div class="award" data-reveal style="--i:{j}"><span class="icon-tile amber">{I.icon("award")}</span><strong>{esc(t)}</strong></div>' for j, (b, t) in enumerate(zip(imgs, ["Charlotte Business Journal Best Places to Work", "Best & Brightest Companies to Work For", "Top Workplaces"])))
+            tiles = "".join(f'<div class="award" data-reveal style="--i:{j}"><span class="icon-tile amber">{I.icon("award")}</span><strong>{esc(t)}</strong></div>' for j, (b, t) in enumerate(zip(imgs, ["Best Places to Work", "Best & Brightest Companies to Work For", "Top Workplaces"])))
             parts.append(f'<section class="section paper"><div class="container"><div class="section-head"><span class="eyebrow amber">Awards</span><h2>{heading_html(h["html"]) if h else "Award-winning workplace"}</h2></div><div class="grid grid-3">{tiles}</div></div></section>')
             continue
         if imgs and len(imgs) >= 6 and not blurbs:  # team photos
@@ -1728,7 +1739,7 @@ def build_careers(main: dict, sub: dict) -> str:
 <div class="grid grid-4">{"".join(f'<div class="card" data-reveal style="--i:{i}"><span class="icon-tile {I.tint(i)}">{I.icon(ic)}</span><h3>{esc(t)}</h3></div>' for i, (t, d, ic) in enumerate([("Inside Sales", "Consult with local business owners and build campaigns that fit their goals.", "headset"), ("Client Success", "Be the trusted point of contact who helps clients grow month after month.", "heart"), ("Production & Design", "Build websites, content and campaigns that get results.", "layout"), ("Marketing & Operations", "Keep the engine running — from recruiting to systems to strategy.", "compass")]))}</div>
 <div class="btn-row center" style="margin-top:32px">{btn("Introduce yourself", "/support/", "primary", "lg")}<a class="btn btn-ghost btn-lg" href="mailto:careers@charliecompanymedia.com">careers@charliecompanymedia.com</a></div></div></section>'''
     parts.append(roles)
-    page = {"path": "/careers/", "title": f"Careers | {BRAND} | Charlotte, NC & Phoenix, AZ", "description": sub.get("description") or main.get("description")}
+    page = {"path": "/careers/", "title": f"Careers | {BRAND} | Lubbock, TX", "description": sub.get("description") or main.get("description")}
     return layout(page, "\n".join(parts))
 
 
@@ -1978,7 +1989,7 @@ def build_support(page: dict) -> str:
     sub = next((b for b in flat0 if b["type"] == "heading" and b is not h1), None)
     tiles = f'''<div class="contact-tiles" style="margin-top:36px"><div class="card" data-reveal><span class="icon-tile">{I.icon("phone")}</span><h3>Call us</h3><p><a href="{PHONE_TEL}"><strong>{esc(PHONE)}</strong></a><br><span class="small muted">{esc(HOURS)}</span></p></div><div class="card" data-reveal style="--i:1"><span class="icon-tile teal">{I.icon("mail")}</span><h3>Email</h3></div><div class="card" data-reveal style="--i:2"><span class="icon-tile violet">{I.icon("pin")}</span><h3>Visit</h3><p>{esc(ADDRESS)}</p></div></div>'''
     hero = f'<section class="hero compact">{orbs()}<div class="container"><div class="hero-center"><span class="eyebrow">Support</span><h1 class="words">{heading_html(h1["html"])}</h1></div>{tiles}</div></section>'
-    form = f'<section class="section paper has-photo" id="get-started">{section_photo("support")}<div class="container"><div class="split" style="align-items:start"><div data-reveal="left"><span class="eyebrow">Talk to us</span><h2>Real people. Real answers.</h2><ul class="checks"><li>Charlotte, NC based support team</li><li>Phone support {esc(HOURS)}</li><li>24/7 email support</li></ul></div><div data-reveal="right">{support_form()}</div></div></div></section>'
+    form = f'<section class="section paper has-photo" id="get-started">{section_photo("support")}<div class="container"><div class="split" style="align-items:start"><div data-reveal="left"><span class="eyebrow">Talk to us</span><h2>Real people. Real answers.</h2><ul class="checks"><li>Lubbock, TX based support team</li><li>Phone support {esc(HOURS)}</li><li>24/7 email support</li></ul></div><div data-reveal="right">{support_form()}</div></div></div></section>'
     return layout(page, hero + form + cta_band("Prefer a walkthrough?", "Book a personalized demo and see the platform in action.", ("Book a demo", "/book-a-demo/"), ("Read the FAQ", "/frequently-asked-questions/")))
 
 
