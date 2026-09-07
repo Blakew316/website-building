@@ -8,6 +8,7 @@ Usage:
 from __future__ import annotations
 
 import argparse
+import hashlib
 import html as htmlmod
 import json
 import math
@@ -2100,9 +2101,21 @@ def build_legal(page: dict) -> str:
 
 
 # ---------- blog ----------
+def post_photo(p: dict) -> str:
+    """Photo for an article, never repeating one already shown on the current page."""
+    key = L.photo_for(p["title"], " ".join(c["name"] for c in p["categories"]), os.path.basename(p.get("image") or ""), default="pool", seed=p["slug"])
+    used = _USED_PHOTOS.setdefault(CUR["path"], [])
+    if key in used:
+        h = int(hashlib.md5(p["slug"].encode()).hexdigest()[:8], 16)
+        pool = [PHOTO_ALT.get(key, "")] + L._POOL[h % len(L._POOL):] + L._POOL[:h % len(L._POOL)]
+        key = next((k for k in pool if k and k not in used), key)
+    used.append(key)
+    return key
+
+
 def post_card(p: dict, i: int = 0, featured: bool = False) -> str:
     cats = "".join(f'<a href="{esc(c["path"])}">{esc(c["name"])}</a>' for c in p["categories"][:2])
-    img = L.photo_tag(L.photo_for(p["title"], " ".join(c["name"] for c in p["categories"]), os.path.basename(p.get("image") or ""), default="pool", seed=p["slug"]), p["title"], sizes="(max-width: 720px) 100vw, 33vw")
+    img = L.photo_tag(post_photo(p), p["title"], sizes="(max-width: 720px) 100vw, 33vw")
     ph = ""
     if featured:
         return f'''<article class="post-featured" data-reveal><div class="thumb">{img}{ph}</div><div class="body"><div class="cats" style="margin-bottom:12px">{cats}</div><h2><a href="{esc(p["path"])}">{esc(p["title"])}</a></h2><div class="meta small muted">{esc(fmt_date(p["date"]))} · {reading_time(p["html"])} min read · {esc(p["author_name"])}</div><div class="btn-row" style="margin-top:18px">{btn("Read article", p["path"], "primary")}</div></div></article>'''
@@ -2145,6 +2158,8 @@ def sidebar(tax: dict, posts_by_slug: dict) -> str:
 
 
 def archive_page(path: str, title: str, lead: str, posts: list[dict], tax: dict, posts_by_slug: dict, page_no: int, eyebrow: str = "Blog", intro_extra: str = "", desc: str = "") -> str:
+    CUR["path"] = path if page_no == 1 else f"{path}page/{page_no}/"
+    _USED_PHOTOS.pop(CUR["path"], None)
     total = max(1, math.ceil(len(posts) / POSTS_PER_PAGE))
     chunk = posts[(page_no - 1) * POSTS_PER_PAGE: page_no * POSTS_PER_PAGE]
     featured = ""
@@ -2164,7 +2179,7 @@ def build_post(p: dict, posts_by_slug: dict, tax: dict, all_posts: list[dict]) -
     cats = "".join(f'<a class="chip" href="{esc(c["path"])}">{esc(c["name"])}</a>' for c in p["categories"][:4])
     tags = "".join(f'<a href="/blog/tag/{esc(t)}/">{esc(tax["tags"][t]["name"])}</a>' for t in p.get("tags", []) if t in tax["tags"])
     author = tax["authors"].get(p["author_slug"] or "", {"name": p["author_name"], "path": "/blog/"})
-    hero_img = f'<div class="hero-img" data-reveal="scale">{L.photo_tag(L.photo_for(p["title"], " ".join(c["name"] for c in p["categories"]), os.path.basename(p.get("image") or ""), default="pool", seed=p["slug"]), p["title"], lazy=False, sizes="(max-width: 800px) 100vw, 780px")}</div>'
+    hero_img = f'<div class="hero-img" data-reveal="scale">{L.photo_tag(post_photo(p), p["title"], lazy=False, sizes="(max-width: 800px) 100vw, 780px")}</div>'
     # inline CTA after the 3rd paragraph-ish block
     body_html = re.sub(r'<figure class="post-figure">(?:(?!</figure>).)*?TownsquareInteractive(?:(?!</figure>).)*?</figure>', "", p["html"], flags=re.S | re.I)
     body_html = re.sub(r'<figure class="post-figure">(?:(?!</figure>).)*?<img[^>]+src="https?://(?:(?!</figure>).)*?</figure>', "", body_html, flags=re.S | re.I)
