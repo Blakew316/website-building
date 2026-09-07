@@ -11,7 +11,7 @@ sections → rows → columns → blocks, where a block is one of: heading, para
 image, button, blurb, pricing, testimonial, faq, feature_accordion, stat, form, video,
 embed, quote, gallery, carousel, tabs, people, hr.
 
-All copy is rebranded (Townsquare Interactive → Meridian Local) and every internal
+All copy is rebranded (Townsquare Interactive → Charlie Company Media) and every internal
 link is rewritten to a root-relative path on the new site.
 """
 from __future__ import annotations
@@ -35,10 +35,10 @@ warnings.filterwarnings("ignore", category=MarkupResemblesLocatorWarning)
 # ---------------------------------------------------------------------------
 # Brand
 # ---------------------------------------------------------------------------
-BRAND = "Meridian Local"
-BRAND_SHORT = "Meridian"
-BRAND_APP = "Meridian App"
-BRAND_PLATFORM = "Meridian Business Platform"
+BRAND = "Charlie Company Media"
+BRAND_SHORT = "Charlie Company"
+BRAND_APP = "Charlie Company App"
+BRAND_PLATFORM = "Charlie Company Business Platform"
 
 REBRAND_RULES = [
     # order matters: longest / most specific first
@@ -46,8 +46,8 @@ REBRAND_RULES = [
     (re.compile(r"Townsquare Business Management Platform", re.I), BRAND_PLATFORM),
     (re.compile(r"Town\s?Square Interactive'?s", re.I), f"{BRAND}'s"),
     (re.compile(r"Town\s?Square Interactive", re.I), BRAND),
-    (re.compile(r"Townsquare Media'?s", re.I), "Meridian Media Group's"),
-    (re.compile(r"Townsquare Media", re.I), "Meridian Media Group"),
+    (re.compile(r"Townsquare Media'?s", re.I), "Charlie Company Holdings'"),
+    (re.compile(r"Townsquare Media", re.I), "Charlie Company Holdings"),
     (re.compile(r"Townsquare Hosting", re.I), f"{BRAND_SHORT} Hosting"),
     (re.compile(r"Townsquare Engage", re.I), f"{BRAND_SHORT} Engage"),
     (re.compile(r"Townsquare App'?s", re.I), f"{BRAND_APP}'s"),
@@ -59,8 +59,8 @@ REBRAND_RULES = [
     (re.compile(r"\bTown\s?Square\b", re.I), BRAND_SHORT),
     (re.compile(r"\bTSI\b"), BRAND_SHORT),
     (re.compile(r"\bvcita'?s\b", re.I), f"{BRAND_SHORT}'s"),
-    (re.compile(r"townsquareinteractive\.com", re.I), "meridianlocal.com"),
-    (re.compile(r"@townsquaremedia\.com", re.I), "@meridianlocal.com"),
+    (re.compile(r"townsquareinteractive\.com", re.I), "charliecompanymedia.com"),
+    (re.compile(r"@townsquaremedia\.com", re.I), "@charliecompanymedia.com"),
 ]
 
 
@@ -873,7 +873,7 @@ def load_soup(path: str) -> BeautifulSoup:
 def page_head(soup: BeautifulSoup) -> dict:
     title = soup.title.string if soup.title and soup.title.string else ""
     title = clean_text(title)
-    title = re.sub(r"\s*\|\s*Meridian Local(\s*\|\s*Page \d+)?$", "", title)
+    title = re.sub(r"\s*\|\s*Charlie Company Media(\s*\|\s*Page \d+)?$", "", title)
     desc = ""
     md = soup.find("meta", attrs={"name": "description"})
     if md and md.get("content"):

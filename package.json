@@ -1,0 +1,17 @@
+{
+  "name": "meridian-local",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Meridian Local website — static site in site/, Netlify Functions in netlify/functions/",
+  "type": "module",
+  "scripts": {
+    "build": "python3 build/site.py --content content --out site",
+    "test": "node --test netlify/functions/_lib/*.test.mjs"
+  },
+  "dependencies": {
+    "@netlify/blobs": "^11.0.3"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

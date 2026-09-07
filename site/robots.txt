@@ -2,4 +2,6 @@ User-agent: *
 Allow: /
 Disallow: /help-center/
 Disallow: /thank-you/
-Sitemap: https://www.meridianlocal.com/sitemap.xml
+Disallow: /admin/
+Disallow: /api/
+Sitemap: https://www.charliecompanymedia.com/sitemap.xml
