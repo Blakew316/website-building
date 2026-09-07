@@ -1624,6 +1624,9 @@ def build_about(page: dict) -> str:
     values = f'<section class="section"><div class="container"><div class="section-head"><span class="eyebrow">How we work</span><h2>Small business mindset, big company support</h2></div>{feature_cards([{"title": b.get("title"), "blocks": b["blocks"], "href": None} for b in blurbs], ctx, 3)}</div></section>'
     rest = []
     for i, sec in enumerate(S[1:], start=1):
+        h = first_heading(sec["blocks"])
+        if h and re.search(r"(?i)meet (our|the) (leaders|team)", text_of(h["html"])):
+            continue  # leadership / team rosters are not shown
         html = render_section(sec, i, ctx, page)
         rest.append(html)
     body = "\n".join([hero, stats, values] + rest + [cta_band("Let's build something together.", "See how a connected marketing and business platform can work for you.")])
