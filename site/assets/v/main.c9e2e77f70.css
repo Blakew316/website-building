@@ -752,6 +752,18 @@ mark { background: rgba(138,155,187,.35); border-radius: 3px; padding: 0 2px; co
 .cta-band { position: relative; border-radius: 32px; padding: clamp(40px, 6vw, 80px) clamp(24px, 5vw, 72px); text-align: center; overflow: hidden; border: 1px solid var(--line); background: #fff; box-shadow: var(--shadow-1); }
 .cta-band::before { content: ""; position: absolute; inset: -40% -20% auto; height: 120%; background: var(--grad-soft); filter: blur(70px); opacity: .9; z-index: 0; }
 .cta-band > * { position: relative; z-index: 1; }
+/* photo backdrops: the image sits behind a soft paper veil that thins towards the right so the copy stays legible */
+.has-photo .bg-photo { position: absolute; inset: 0; z-index: 0; }
+.has-photo .bg-photo img { width: 100%; height: 100%; object-fit: cover; object-position: center; display: block; }
+.has-photo .bg-veil { position: absolute; inset: 0; z-index: 0; background: linear-gradient(90deg, rgba(245,246,250,.97) 0%, rgba(245,246,250,.92) 42%, rgba(245,246,250,.62) 100%); }
+.cta-band.has-photo::before { display: none; }
+.cta-band.has-photo .bg-veil { background: linear-gradient(90deg, rgba(245,246,250,.96) 0%, rgba(245,246,250,.9) 55%, rgba(245,246,250,.55) 100%); }
+.cta-band.has-photo h2, .cta-band.has-photo .btn-row { position: relative; z-index: 1; }
+.app-promo.has-photo { background: #fff; }
+.app-promo.has-photo > *:not(.bg-photo):not(.bg-veil) { position: relative; z-index: 1; }
+.app-promo.has-photo .bg-photo, .app-promo.has-photo .bg-veil { position: absolute; inset: 0; z-index: 0; }
+.app-promo.has-photo .bg-veil { background: linear-gradient(90deg, rgba(245,246,250,.98) 0%, rgba(245,246,250,.92) 48%, rgba(245,246,250,.5) 100%); }
+@media (max-width: 720px) { .has-photo .bg-veil, .cta-band.has-photo .bg-veil, .app-promo.has-photo .bg-veil { background: rgba(245,246,250,.9); } }
 .cta-band h2 { max-width: 720px; margin-inline: auto; }
 .cta-band .lead { max-width: 620px; margin: 0 auto 28px; }
 

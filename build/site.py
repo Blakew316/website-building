@@ -530,7 +530,8 @@ def app_promo(title: str = None, sub: str = None) -> str:
     sub = sub or "Manage your business from anywhere, on any device."
     apple = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M16.4 12.6c0-2.5 2-3.7 2.1-3.8-1.2-1.7-3-1.9-3.6-2-1.5-.2-3 .9-3.8.9-.8 0-2-.9-3.3-.9-1.7 0-3.3 1-4.2 2.5-1.8 3.1-.5 7.7 1.3 10.2.9 1.2 1.9 2.6 3.2 2.6 1.3-.1 1.8-.8 3.3-.8s2 .8 3.3.8c1.4 0 2.3-1.3 3.1-2.5 1-1.4 1.4-2.8 1.4-2.9-.1 0-2.8-1.1-2.8-4.1zM14 5.3c.7-.8 1.2-2 1-3.2-1 0-2.2.7-2.9 1.5-.6.7-1.2 1.9-1 3 1.1.1 2.2-.5 2.9-1.3z"/></svg>'
     play = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M4 3.5v17l9.5-8.5L4 3.5z" opacity=".95"/><path d="M13.5 12l3.2-2.9 3.3 1.9c.9.5.9 1.5 0 2l-3.3 1.9L13.5 12z" opacity=".8"/><path d="M4 3.5l9.5 8.5-3.2 2.9L4 3.5z" opacity=".6"/></svg>'
-    return f'''<section class="section"><div class="container"><div class="app-promo" data-reveal>
+    return f'''<section class="section"><div class="container"><div class="app-promo has-photo" data-reveal>
+  <div class="bg-photo" aria-hidden="true">{L.photo_tag("mobile", "", lazy=True, sizes="(max-width: 1240px) 100vw, 1200px")}</div><div class="bg-veil" aria-hidden="true"></div>
   <div>
     <span class="eyebrow">Mobile app</span>
     <h2>{esc(title)}</h2>
@@ -544,7 +545,8 @@ def app_promo(title: str = None, sub: str = None) -> str:
 
 
 def cta_band(title: str = "Ready to grow faster and run smarter?", sub: str = "Get a personalized look at how the platform fits your business. No generic pitch, no pressure.", primary=("Book a demo", "/book-a-demo/"), secondary=("See pricing", "/pricing/")) -> str:
-    return f'''<section class="section tight"><div class="container"><div class="cta-band" data-reveal>
+    return f'''<section class="section tight"><div class="container"><div class="cta-band has-photo" data-reveal>
+  <div class="bg-photo" aria-hidden="true">{L.photo_tag("handshake", "", lazy=True, sizes="(max-width: 1240px) 100vw, 1200px")}</div><div class="bg-veil" aria-hidden="true"></div>
   <h2>{esc(title)}</h2>
   <div class="btn-row center">{btn(primary[0], primary[1], "primary", "lg")}{btn(secondary[0], secondary[1], "ghost", "lg", False) if secondary else ""}</div>
 </div></div></section>'''
