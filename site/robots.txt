@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+Disallow: /help-center/
+Disallow: /thank-you/
+Disallow: /admin/
+Disallow: /api/
+Disallow: /forms/
+Sitemap: https://www.charliecompanymedia.com/sitemap.xml

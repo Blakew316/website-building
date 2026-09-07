@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en" data-api="{{API}}">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Admin | {{BRAND}}</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="{{CSS}}">
+<style>
+  body { background: var(--paper); min-height: 100vh; }
+  .adm { display: grid; grid-template-columns: 236px 1fr; min-height: 100vh; }
+  .adm-side { background: #fff; border-right: 1px solid var(--line); padding: 22px 16px; position: sticky; top: 0; height: 100vh; display: flex; flex-direction: column; gap: 6px; }
+  .adm-side .brand { padding: 4px 8px 18px; }
+  .adm-side .brand svg.emblem { height: 32px; }
+  .adm-nav a { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 12px; color: var(--ink-2); font-weight: 500; font-size: .95rem; transition: background .2s; }
+  .adm-nav a svg { width: 18px; height: 18px; opacity: .75; }
+  .adm-nav a:hover { background: var(--paper); }
+  .adm-nav a.on { background: var(--blue-t); color: var(--navy); }
+  .adm-side .foot { margin-top: auto; padding: 8px; font-size: .8rem; color: var(--muted); }
+  .adm-main { padding: 28px clamp(18px, 3vw, 40px) 60px; min-width: 0; }
+  .adm-top { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-bottom: 24px; }
+  .adm-top h1 { font-size: 1.6rem; margin: 0; letter-spacing: -.03em; }
+  .seg { display: inline-flex; background: #fff; border: 1px solid var(--line); border-radius: 980px; padding: 3px; }
+  .seg button { border: 0; background: none; padding: 7px 14px; border-radius: 980px; font-weight: 500; font-size: .88rem; color: var(--muted); cursor: pointer; }
+  .seg button.on { background: rgba(11,31,63,.08); color: var(--navy); }
+  .live { display: inline-flex; align-items: center; gap: 8px; font-size: .85rem; color: var(--ink-2); font-weight: 500; }
+  .live i { width: 8px; height: 8px; border-radius: 50%; background: var(--sky); box-shadow: 0 0 0 4px rgba(79,134,198,.18); animation: pulse 2.2s ease-in-out infinite; }
+  .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 14px; margin-bottom: 22px; }
+  .kpi { background: #fff; border: 1px solid var(--line); border-radius: 18px; padding: 18px 20px; box-shadow: var(--shadow-1); }
+  .kpi .l { font-size: .8rem; color: var(--muted); font-weight: 500; }
+  .kpi .v { font-size: 1.7rem; font-weight: 700; letter-spacing: -.04em; color: var(--navy); margin-top: 6px; font-variant-numeric: tabular-nums; line-height: 1; }
+  .kpi .d { font-size: .78rem; margin-top: 8px; font-weight: 500; color: var(--muted); }
+  .kpi .d.up { color: var(--steel); } .kpi .d.down { color: #8a2b3f; }
+  .panel { background: #fff; border: 1px solid var(--line); border-radius: 20px; padding: 20px 22px; box-shadow: var(--shadow-1); min-width: 0; }
+  .panel h3 { font-size: 1rem; margin: 0 0 14px; display: flex; justify-content: space-between; align-items: center; letter-spacing: -.01em; }
+  .panel h3 .small { font-weight: 400; }
+  .row2 { display: grid; grid-template-columns: 2fr 1fr; gap: 14px; margin-bottom: 14px; }
+  .row3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; margin-bottom: 14px; }
+  @media (max-width: 1100px) { .row2, .row3 { grid-template-columns: 1fr; } }
+  @media (max-width: 860px) { .adm { grid-template-columns: 1fr; } .adm-side { position: static; height: auto; flex-direction: row; flex-wrap: wrap; align-items: center; } .adm-side .brand { padding: 0 8px 0 0; } .adm-nav { display: flex; flex-wrap: wrap; gap: 2px; } .adm-side .foot { display: none; } }
+  .chart { width: 100%; height: auto; display: block; }
+  .bars { display: grid; gap: 8px; }
+  .bar-row { display: grid; grid-template-columns: 1fr auto; gap: 10px; align-items: center; font-size: .88rem; }
+  .bar-row .n { color: var(--ink-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; position: relative; padding: 5px 8px; border-radius: 8px; }
+  .bar-row .n i { position: absolute; inset: 0; background: var(--blue-t); border-radius: 8px; z-index: 0; }
+  .bar-row .n span { position: relative; z-index: 1; }
+  .bar-row .c { font-variant-numeric: tabular-nums; color: var(--muted); font-weight: 500; }
+  table.tbl { width: 100%; border-collapse: collapse; font-size: .9rem; }
+  .tbl th { text-align: left; font-size: .74rem; letter-spacing: .06em; text-transform: uppercase; color: var(--faint); font-weight: 600; padding: 8px 10px; border-bottom: 1px solid var(--line); }
+  .tbl td { padding: 11px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  .tbl tr:hover td { background: var(--paper); cursor: pointer; }
+  .tbl .mono { font-family: var(--mono); font-size: .78rem; color: var(--muted); }
+  .status { display: inline-flex; padding: 3px 10px; border-radius: 980px; font-size: .74rem; font-weight: 600; background: var(--blue-t); color: var(--navy); text-transform: capitalize; }
+  .status.new { background: rgba(79,134,198,.16); color: var(--steel); }
+  .status.contacted { background: var(--violet-t); color: var(--slate); }
+  .status.qualified, .status.won { background: rgba(42,90,156,.14); color: var(--deep); }
+  .status.lost, .status.spam { background: var(--paper-2); color: var(--muted); }
+  .toolbar { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-bottom: 14px; }
+  .toolbar input, .toolbar select { font: inherit; font-size: .92rem; padding: 9px 13px; border-radius: 12px; border: 1px solid var(--line-2); background: #fff; color: var(--ink); }
+  .toolbar input { min-width: 240px; }
+  .drawer { position: fixed; inset: 0 0 0 auto; width: min(520px, 100vw); background: #fff; box-shadow: -20px 0 60px -30px rgba(11,31,63,.35); transform: translateX(100%); transition: transform .4s var(--ease); z-index: 60; overflow: auto; padding: 26px 26px 40px; }
+  .drawer.open { transform: none; }
+  .drawer h2 { font-size: 1.3rem; margin-bottom: 4px; }
+  .drawer dl { display: grid; grid-template-columns: 130px 1fr; gap: 8px 12px; font-size: .9rem; margin: 18px 0; }
+  .drawer dt { color: var(--muted); } .drawer dd { margin: 0; color: var(--ink-2); word-break: break-word; }
+  .drawer textarea, .drawer select { font: inherit; width: 100%; padding: 10px 12px; border-radius: 12px; border: 1px solid var(--line-2); }
+  .scrim { position: fixed; inset: 0; background: rgba(11,31,63,.25); opacity: 0; pointer-events: none; transition: opacity .3s; z-index: 55; }
+  .scrim.on { opacity: 1; pointer-events: auto; }
+  .login { min-height: 100vh; display: grid; place-items: center; padding: 24px; position: relative; overflow: hidden; }
+  .login .form-card { width: min(420px, 100%); text-align: center; position: relative; z-index: 1; }
+  .login .form-card svg.emblem { height: 64px; margin: 0 auto 14px; color: var(--navy); }
+  .login .field { text-align: left; }
+  .note { font-size: .85rem; color: var(--muted); background: var(--paper); border-radius: 14px; padding: 12px 14px; text-align: left; }
+  .note code { font-family: var(--mono); font-size: .8rem; background: #fff; padding: 2px 6px; border-radius: 6px; }
+  .feed { display: grid; gap: 8px; }
+  .ev { display: grid; grid-template-columns: 70px 110px 1fr auto; gap: 12px; font-size: .86rem; padding: 9px 12px; border-radius: 12px; background: var(--paper); align-items: center; }
+  .ev .t { color: var(--muted); font-variant-numeric: tabular-nums; }
+  .ev .k { font-weight: 600; color: var(--navy); }
+  .ev .p { color: var(--ink-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .ev .m { color: var(--muted); font-size: .8rem; white-space: nowrap; }
+  .empty { color: var(--muted); font-size: .9rem; padding: 12px 0; }
+  .hours { display: grid; grid-template-columns: repeat(24, 1fr); gap: 3px; align-items: end; height: 70px; }
+  .hours i { display: block; background: var(--steel); border-radius: 3px 3px 0 0; min-height: 2px; opacity: .75; }
+  .hint { font-size: .8rem; color: var(--muted); margin-top: 8px; }
+  .drop { border: 1.5px dashed var(--line-2); border-radius: 16px; padding: 26px; text-align: center; color: var(--muted); font-size: .92rem; transition: background .2s, border-color .2s; cursor: pointer; }
+  .drop.over, .drop:hover { background: var(--paper); border-color: var(--steel); }
+  .drop input { display: none; }
+  .preview { overflow: auto; max-height: 260px; margin-top: 14px; }
+  .preview table { font-size: .8rem; }
+  [hidden] { display: none !important; }
+</style>
+</head>
+<body>
+<div id="app" data-brand="{{BRAND}}">
+  <div class="login" id="login">
+    <div class="orbs" aria-hidden="true"><span class="orb a"></span><span class="orb b"></span><span class="orb c"></span></div>
+    <div class="form-card">
+      {{LOGO}}
+      <h1 class="h3" style="margin-bottom:18px">Admin sign in</h1>
+      <form id="login-form" novalidate>
+        <div class="field"><label for="pw">Password</label><input id="pw" type="password" autocomplete="current-password" required></div>
+        <button class="btn btn-primary" type="submit" style="width:100%">Sign in</button>
+        <p class="error" id="login-error" style="color:#8a2b3f;font-size:.85rem;margin:12px 0 0" hidden></p>
+      </form>
+      <div class="note" id="setup-note" style="margin-top:16px" hidden>No admin password is configured yet. In Netlify open <strong>Site configuration → Environment variables</strong>, add <code>ADMIN_PASSWORD</code>, then trigger a new deploy.</div>
+    </div>
+  </div>
+
+  <div class="adm" id="shell" hidden>
+    <aside class="adm-side">
+      <a class="brand" href="/">{{LOGO}}<span class="word">{{BRAND_SHORT}}<small>Admin</small></span></a>
+      <nav class="adm-nav" id="nav">
+        <a href="#overview" class="on" data-view="overview"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="6.5" height="6.5" rx="2"/><rect x="13.5" y="4" width="6.5" height="6.5" rx="2"/><rect x="4" y="13.5" width="6.5" height="6.5" rx="2"/><rect x="13.5" y="13.5" width="6.5" height="6.5" rx="2"/></svg>Overview</a>
+        <a href="#leads" data-view="leads"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="9.5" cy="8.5" r="3.25"/><path d="M3.5 19.5a6 6 0 0 1 12 0"/><path d="M15.5 5.6a3.25 3.25 0 0 1 0 5.8"/><path d="M17.5 14.2a6 6 0 0 1 3 5.3"/></svg>Leads</a>
+        <a href="#customers" data-view="customers"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="7" width="17" height="12.5" rx="3"/><path d="M9 7V5.5A1.5 1.5 0 0 1 10.5 4h3A1.5 1.5 0 0 1 15 5.5V7M3.5 12h17"/></svg>Customers</a>
+        <a href="#activity" data-view="activity"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 12h4l2.5-6 4 12 2.5-6h4"/></svg>Activity</a>
+        <a href="#pages" data-view="pages"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 3.5h7l4 4v13h-11Z"/><path d="M13.5 3.5v4h4"/></svg>Pages &amp; sources</a>
+        <a href="#settings" data-view="settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.6 1.6 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.6 1.6 0 0 0-1.8-.3 1.6 1.6 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.6 1.6 0 0 0-1-1.5 1.6 1.6 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.6 1.6 0 0 0 .3-1.8 1.6 1.6 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.6 1.6 0 0 0 1.5-1 1.6 1.6 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.6 1.6 0 0 0 1.8.3H9a1.6 1.6 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.6 1.6 0 0 0 1 1.5 1.6 1.6 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.6 1.6 0 0 0-.3 1.8V9a1.6 1.6 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.6 1.6 0 0 0-1.5 1Z"/></svg>Settings</a>
+      </nav>
+      <div class="foot"><span id="ctx-label"></span><br><a href="#" id="logout">Sign out</a> · <a href="/">View site</a></div>
+    </aside>
+    <main class="adm-main" id="main"></main>
+  </div>
+  <div class="scrim" id="scrim"></div>
+  <aside class="drawer" id="drawer" aria-label="Lead details"></aside>
+</div>
+<script src="{{ADMIN_JS}}" defer></script>
+</body>
+</html>

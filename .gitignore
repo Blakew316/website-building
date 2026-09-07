@@ -1,0 +1,7 @@
+.build-src/
+__pycache__/
+*.pyc
+.DS_Store
+node_modules/
+.netlify/
+build/data/photos_raw/
