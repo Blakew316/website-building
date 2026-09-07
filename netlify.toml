@@ -1,0 +1,22 @@
+# Netlify deployment for the Meridian Local site.
+# The generated website lives in site/ (committed), so no build step is needed:
+# Netlify just publishes that folder. site/_redirects handles legacy URLs and the 404.
+[build]
+  publish = "site"
+  command = ""
+
+[build.environment]
+  PYTHON_VERSION = "3.11"
+
+# Long-lived caching for static assets (HTML stays revalidated).
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Content-Type-Options = "nosniff"
+    X-Frame-Options = "SAMEORIGIN"
+    Referrer-Policy = "strict-origin-when-cross-origin"

@@ -36,9 +36,17 @@ only needs to run again if the source archive changes.
 ## Deploy
 
 `site/` is plain static HTML — drop it on Netlify, Vercel, Cloudflare Pages, S3 or GitHub Pages.
-A `_redirects` file (Netlify format) maps the old site's dead URLs to their new homes, and
-`.github/workflows/pages.yml` builds and publishes `site/` to GitHub Pages on every push to `main`
-(enable Pages → "GitHub Actions" in the repo settings).
+
+* **Netlify** — `netlify.toml` at the repo root sets the publish directory to `site` with no build
+  command, so "import from Git" works as-is. Deploy the branch that contains the redesign (this PR's
+  branch, or `main` once it is merged); `main` before the merge only holds the zip archives, which is
+  why a deploy from it shows Netlify's "Page not found". If you configured the site in the Netlify UI
+  before this file existed, set *Site settings → Build & deploy → Publish directory* to `site` (or
+  just trigger a new deploy — `netlify.toml` takes precedence). `site/_redirects` maps the old
+  site's dead URLs to their new homes and serves `404.html` for unknown paths.
+* **GitHub Pages** — `.github/workflows/pages.yml` builds and publishes `site/` on every push to
+  `main` (enable Pages → "GitHub Actions" in the repo settings).
+* **Anything else** — upload the contents of `site/` to the web root.
 
 ## Brand & design system
 
