@@ -39,4 +39,7 @@
 /blog/category/townsquare-engage/ /blog/category/meridian-engage/ 301
 /blog/tag/townsquare-interactive/ /blog/tag/meridian-interactive/ 301
 /townsquare-hosting-terms/ /hosting-terms/ 301
+/login/ /help-center/sign-in/ 301
+/client-login/ /help-center/sign-in/ 301
+/sign-in/ /help-center/sign-in/ 301
 /* /404.html 404

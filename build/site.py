@@ -38,6 +38,9 @@ PHONE_TEL = "tel:+18554635490"
 ADDRESS = "200 South College Street, Suite 400, Charlotte, NC 28202"
 HOURS = "Monday – Friday, 9:00am – 5:00pm EST"
 FORM_ENDPOINT = ""  # e.g. "https://formspree.io/f/xxxx" — leave empty to use the built-in success state
+# Where "Client login" in the header/footer and /login/ send existing customers to view their
+# platform and monthly reporting. Point this at the live Business Platform sign-in URL when known.
+CLIENT_LOGIN_URL = "/help-center/sign-in/"
 POSTS_PER_PAGE = 12
 APP_IOS = "https://apps.apple.com/us/app/townsquare-app/id1493986303"
 APP_ANDROID = "https://play.google.com/store/apps/details?id=com.townsquare.mobileapp&hl=en_US&gl=US"
@@ -86,6 +89,7 @@ SUPPORT_ITEMS = [
     ("/frequently-asked-questions/", "FAQ", "Answers to common questions", "help"),
     ("/support/", "Contact Support", "Send us a message", "message"),
     ("/help-center/", "Help Center", "Sign in to your account", "key"),
+    (CLIENT_LOGIN_URL, "Client login", "View your platform and monthly reporting", "chart"),
 ]
 COMPANY_ITEMS = [
     ("/about-us/", "About Us", "Who we are and how we work", "users"),
@@ -292,7 +296,7 @@ def header(current: str) -> str:
         li("Industries", [(h, t, "", ic) for h, t, ic in INDUSTRY_ITEMS] + [("/who-we-work-with/", "All industries", "", "grid")], 2, None),
         li("Support", SUPPORT_ITEMS, 2, None),
         li("Company", COMPANY_ITEMS, 2, None),
-        f'<li class="mobile-cta"><div class="btn-row">{btn("Book a demo", "/book-a-demo/", "primary")}<a class="btn btn-ghost" href="{PHONE_TEL}">{esc(PHONE)}</a></div></li>',
+        f'<li class="mobile-cta"><div class="btn-row">{btn("Book a demo", "/book-a-demo/", "primary")}<a class="btn btn-ghost" href="{esc(CLIENT_LOGIN_URL)}">{I.icon("key")}Client login</a><a class="btn btn-ghost" href="{PHONE_TEL}">{esc(PHONE)}</a></div></li>',
     ])
     return f'''<a class="skip-link" href="#main">Skip to content</a>
 <header class="site-header"><div class="container bar">
@@ -300,6 +304,7 @@ def header(current: str) -> str:
   <ul class="nav" id="nav">{nav}</ul>
   <div class="header-cta">
     <button class="search-btn" data-search-open aria-label="Search">{I.icon("search")}</button>
+    <a class="login-link" href="{esc(CLIENT_LOGIN_URL)}">{I.icon("key")}<span>Client login</span></a>
     <a class="phone" href="{PHONE_TEL}">{esc(PHONE)}</a>
     {btn("Book a demo", "/book-a-demo/", "primary", "sm")}
     <button class="nav-toggle" aria-label="Menu" aria-expanded="false" aria-controls="nav"><span></span></button>
@@ -315,7 +320,7 @@ def footer() -> str:
     grow = [(h, t) for h, t, _, _ in GROW_ITEMS]
     run = [(h, t) for h, t, _, _ in RUN_ITEMS]
     industries = [(h, t) for h, t, _ in INDUSTRY_ITEMS]
-    company = [(h, t) for h, t, _, _ in COMPANY_ITEMS] + [("/support/", "Contact"), ("/what-to-expect/", "What to Expect")]
+    company = [(h, t) for h, t, _, _ in COMPANY_ITEMS] + [("/support/", "Contact"), ("/what-to-expect/", "What to Expect"), (CLIENT_LOGIN_URL, "Client login")]
     social = (
         f'<a href="https://www.instagram.com/" aria-label="Instagram" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor"/></svg></a>'
         f'<a href="https://www.facebook.com/" aria-label="Facebook" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M14 8h3V4h-3a4 4 0 00-4 4v3H7v4h3v6h4v-6h3l1-4h-4V8z"/></svg></a>'
@@ -1630,8 +1635,8 @@ def build_careers(main: dict, sub: dict) -> str:
 # ---------- help center ----------
 def build_help_center() -> list[tuple[str, str]]:
     out = []
-    tiles = "".join(f'<a class="tile-link" href="{esc(h)}" data-reveal style="--i:{i}"><span class="icon-tile {I.tint(i)}">{I.icon(ic)}</span>{esc(t)}</a>' for i, (h, t, ic) in enumerate([("/help-center/sign-in/", "Sign in to your account", "key"), ("/help-center/agent-sign-in/", "Agent sign in", "user"), ("/help-center/forgot-password/", "Reset your password", "lock"), ("/help-center/sign-up/", "Create an account", "edit"), ("/support/", "Contact support", "message"), ("/frequently-asked-questions/", "Browse the FAQ", "help")]))
-    body = f'''<section class="hero compact">{orbs()}<div class="container"><div class="hero-center"><span class="eyebrow">Help Center</span><h1 class="words">How can we help?</h1><p class="lead">Sign in to manage support requests, browse answers, or reach a real person Monday–Friday, 9am–5pm EST.</p><div class="search-box" style="max-width:560px;margin:8px auto 0"><input type="search" placeholder="Search articles and guides…" aria-label="Search help" onkeydown="if(event.key==='Enter'){{location.href='/search/?q='+encodeURIComponent(this.value)}}"><button class="btn btn-primary" data-search-open>Search</button></div></div></div></section>
+    tiles = "".join(f'<a class="tile-link" href="{esc(h)}" data-reveal style="--i:{i}"><span class="icon-tile {I.tint(i)}">{I.icon(ic)}</span>{esc(t)}</a>' for i, (h, t, ic) in enumerate([(CLIENT_LOGIN_URL, "Client login — view your reporting", "chart"), ("/help-center/sign-in/", "Sign in to your account", "key"), ("/help-center/agent-sign-in/", "Agent sign in", "user"), ("/help-center/forgot-password/", "Reset your password", "lock"), ("/help-center/sign-up/", "Create an account", "edit"), ("/support/", "Contact support", "message"), ("/frequently-asked-questions/", "Browse the FAQ", "help")]))
+    body = f'''<section class="hero compact">{orbs()}<div class="container"><div class="hero-center"><span class="eyebrow">Help Center</span><h1 class="words">How can we help?</h1><p class="lead">Sign in to view your monthly reporting and manage your {esc(BRAND_SHORT)} Business Platform, browse answers, or reach a real person Monday–Friday, 9am–5pm EST.</p><div class="search-box" style="max-width:560px;margin:8px auto 0"><input type="search" placeholder="Search articles and guides…" aria-label="Search help" onkeydown="if(event.key==='Enter'){{location.href='/search/?q='+encodeURIComponent(this.value)}}"><button class="btn btn-primary" data-search-open>Search</button></div></div></div></section>
 <section class="section"><div class="container"><div class="tile-grid">{tiles}</div></div></section>
 <section class="section paper"><div class="container"><div class="contact-tiles"><div class="card"><span class="icon-tile">{I.icon("phone")}</span><h3>Call us</h3><p><a href="{PHONE_TEL}">{esc(PHONE)}</a><br><span class="small muted">{esc(HOURS)}</span></p></div><div class="card"><span class="icon-tile teal">{I.icon("mail")}</span><h3>Email support</h3><p>24/7 by email — we reply the next business day.</p></div><div class="card"><span class="icon-tile violet">{I.icon("phone")}</span><h3>In the app</h3><p>Message your team directly from the {esc(BRAND_SHORT)} Business Platform.</p></div></div></div></section>'''
     out.append(("/help-center/", layout({"path": "/help-center/", "title": "Help Center", "description": f"{BRAND} help center — sign in, reset your password or contact support."}, body)))
@@ -2097,6 +2102,9 @@ def main():
                 html = archive_page(t["path"], title, lead_t, tposts, tax, posts_by_slug, n, eyebrow=eyebrow)
                 emit(t["path"] if n == 1 else f"{t['path']}page/{n}/", html, "0.4" if n == 1 else "0.2")
 
+    # short login aliases → client login
+    for alias in ("/login/", "/client-login/", "/sign-in/"):
+        LEGACY.append((alias, CLIENT_LOGIN_URL))
     # redirect stubs for renamed URLs
     for old, new in LEGACY:
         write(OUT, old, redirect_stub(new))
