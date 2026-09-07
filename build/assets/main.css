@@ -782,9 +782,9 @@ mark { background: rgba(138,155,187,.35); border-radius: 3px; padding: 0 2px; co
 .footer-bottom a { color: var(--muted); }
 .footer-bottom a:hover { color: var(--ink); }
 .social { display: flex; gap: 8px; }
-.social a { width: 38px; height: 38px; border-radius: 50%; border: 1px solid var(--line-2); display: grid; place-items: center; color: var(--ink-2); background: #fff; transition: transform .35s var(--ease), border-color .25s; }
-.social a:hover { transform: translateY(-2px); border-color: var(--ink); }
-.social svg { width: 16px; height: 16px; }
+.social a { width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--line); display: grid; place-items: center; background: #fff; box-shadow: var(--shadow-1); transition: transform .35s var(--ease), box-shadow .35s var(--ease); }
+.social a:hover { transform: translateY(-3px); box-shadow: var(--shadow-2); }
+.social svg { width: 20px; height: 20px; display: block; }
 .reviews-badge { display: inline-flex; align-items: center; gap: 12px; padding: 10px 14px; border: 1px solid var(--line); border-radius: 14px; background: #fff; }
 .reviews-badge .stars { color: var(--amber); letter-spacing: 1px; }
 .reviews-badge strong { display: block; font-size: .95rem; color: var(--ink); }

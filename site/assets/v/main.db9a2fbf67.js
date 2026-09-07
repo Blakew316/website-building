@@ -293,7 +293,16 @@
           sent = res.ok;
         } catch (err) { sent = false; }
       }
-      // 2) optional external endpoint
+      // 2) Netlify Forms (emails the owner via Netlify's form notifications); passwords never leave the page
+      if (location.protocol !== 'file:') {
+        try {
+          const nf = new URLSearchParams({ 'form-name': formName, page: location.pathname });
+          Object.entries(fields).forEach(([k, v]) => { if (k !== 'form' && k !== 'password') nf.append(k, v); });
+          const res = await fetch('/forms/', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: nf.toString() });
+          sent = sent || res.ok;
+        } catch (err) {}
+      }
+      // 3) optional external endpoint
       const action = form.getAttribute('action') || ENDPOINT;
       if (action) {
         try { const res = await fetch(action, { method: 'POST', body: data, headers: { Accept: 'application/json' } }); sent = sent || res.ok; } catch (err) {}

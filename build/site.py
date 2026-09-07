@@ -37,6 +37,8 @@ SITE_URL = "https://www.charliecompanymedia.com"
 PHONE = "(210) 480-6345"
 PHONE_TEL = "tel:+12104806345"
 ADDRESS = "7720 University Avenue, Lubbock, TX 79423"
+ADDRESS_LINES = ("7720 University Avenue", "Lubbock, TX 79423")
+ADDRESS_HTML = "7720 University Avenue<br>Lubbock, TX 79423"
 MAPS_URL = "https://www.google.com/maps/search/?api=1&query=7720+University+Avenue%2C+Lubbock%2C+TX+79423"
 SOCIAL = {"facebook": "https://www.facebook.com/blake.woodruff.31", "instagram": "https://www.instagram.com/blake_woodruff24/", "linkedin": "https://www.linkedin.com/in/justin-woodruff-758b33307/"}
 HOURS = "Monday – Friday, 9:00am – 5:00pm CST"
@@ -405,17 +407,17 @@ def footer() -> str:
     industries = [(h, t) for h, t, _ in INDUSTRY_ITEMS]
     company = [(h, t) for h, t, _, _ in COMPANY_ITEMS] + [("/support/", "Contact"), ("/what-to-expect/", "What to Expect"), (CLIENT_LOGIN_URL, "Client login")]
     social = (
-        f'<a href="{SOCIAL["instagram"]}" aria-label="Instagram" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor"/></svg></a>'
-        f'<a href="{SOCIAL["facebook"]}" aria-label="Facebook" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M14 8h3V4h-3a4 4 0 00-4 4v3H7v4h3v6h4v-6h3l1-4h-4V8z"/></svg></a>'
-        f'<a href="{SOCIAL["linkedin"]}" aria-label="LinkedIn" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><rect x="3" y="9" width="4" height="12"/><circle cx="5" cy="5" r="2"/><path d="M11 21v-7a3 3 0 016 0v7M11 9v12M17 21v-7"/></svg></a>'
-        f'<a href="{MAPS_URL}" aria-label="Google Maps" target="_blank" rel="noopener">{I.icon("pin")}</a>'
+        f'<a class="fb" href="{SOCIAL["facebook"]}" aria-label="Facebook" target="_blank" rel="noopener"><svg viewBox="0 0 24 24"><path fill="#1877F2" d="M24 12a12 12 0 1 0-13.88 11.85v-8.38H7.08V12h3.04V9.36c0-3.01 1.79-4.67 4.53-4.67 1.31 0 2.69.23 2.69.23v2.96h-1.52c-1.49 0-1.96.93-1.96 1.88V12h3.33l-.53 3.47h-2.8v8.38A12 12 0 0 0 24 12z"/></svg></a>'
+        f'<a class="ig" href="{SOCIAL["instagram"]}" aria-label="Instagram" target="_blank" rel="noopener"><svg viewBox="0 0 24 24"><defs><linearGradient id="igg" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#FFD600"/><stop offset=".5" stop-color="#FF0069"/><stop offset="1" stop-color="#7638FA"/></linearGradient></defs><path fill="url(#igg)" d="M12 2.16c3.2 0 3.58.01 4.85.07 3.25.15 4.77 1.69 4.92 4.92.06 1.27.07 1.65.07 4.85s-.01 3.58-.07 4.85c-.15 3.23-1.66 4.77-4.92 4.92-1.27.06-1.64.07-4.85.07-3.2 0-3.58-.01-4.85-.07-3.26-.15-4.77-1.7-4.92-4.92C2.17 15.58 2.16 15.2 2.16 12s.01-3.58.07-4.85C2.38 3.92 3.9 2.38 7.15 2.23 8.42 2.18 8.8 2.16 12 2.16zM12 0C8.74 0 8.33.01 7.05.07 2.7.27.27 2.69.07 7.05.01 8.33 0 8.74 0 12s.01 3.67.07 4.95c.2 4.36 2.62 6.78 6.98 6.98C8.33 23.99 8.74 24 12 24s3.67-.01 4.95-.07c4.35-.2 6.78-2.62 6.98-6.98.06-1.28.07-1.69.07-4.95s-.01-3.67-.07-4.95c-.2-4.35-2.62-6.78-6.98-6.98C15.67.01 15.26 0 12 0zm0 5.84A6.16 6.16 0 1 0 12 18.16 6.16 6.16 0 0 0 12 5.84zM12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm6.4-11.85a1.44 1.44 0 1 0 0 2.88 1.44 1.44 0 0 0 0-2.88z"/></svg></a>'
+        f'<a class="li" href="{SOCIAL["linkedin"]}" aria-label="LinkedIn" target="_blank" rel="noopener"><svg viewBox="0 0 24 24"><path fill="#0A66C2" d="M20.45 20.45h-3.56v-5.57c0-1.33-.02-3.04-1.85-3.04-1.85 0-2.14 1.45-2.14 2.94v5.67H9.35V9h3.41v1.56h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.06 2.06 0 1 1 0-4.13 2.06 2.06 0 0 1 0 4.13zM7.12 20.45H3.56V9h3.56v11.45zM22.22 0H1.77C.79 0 0 .77 0 1.73v20.54C0 23.23.79 24 1.77 24h20.45c.98 0 1.78-.77 1.78-1.73V1.73C24 .77 23.2 0 22.22 0z"/></svg></a>'
+        f'<a class="gm" href="{MAPS_URL}" aria-label="Google Maps" target="_blank" rel="noopener"><svg viewBox="0 0 24 24"><path fill="#34A853" d="M12 0a8.5 8.5 0 0 0-6.1 2.58l4.02 4.02A2.96 2.96 0 0 1 12 6.05c.55 0 1.07.15 1.51.41L17.6 2.4A8.46 8.46 0 0 0 12 0z"/><path fill="#4285F4" d="M5.9 2.58A8.46 8.46 0 0 0 3.5 8.5c0 1.67.5 3.1 1.28 4.42l5.14-5.14z"/><path fill="#FBBC04" d="M4.78 12.92c1.9 3.2 5.3 6.3 6.35 10.2.22.8.29.88.87.88s.65-.08.87-.88c.5-1.86 1.5-3.53 2.6-5.1L10.4 12.9a2.97 2.97 0 0 1-.48-.72z"/><path fill="#EA4335" d="M13.51 6.46A2.96 2.96 0 0 1 14.95 9c0 .93-.43 1.76-1.1 2.3l-.9 1.6 5.47 5.02c.99-1.42 1.85-2.82 2.08-4.02.05-.22-.03-.4 0-.5A8.5 8.5 0 0 0 20.5 8.5c0-2.3-.9-4.4-2.9-6.1z"/><path fill="#1A73E8" d="M13.85 11.3A2.96 2.96 0 0 1 12 12c-.62 0-1.2-.2-1.6-.5l-.4 1.4 4.32 4.02c.96-1.4 1.9-2.75 2.66-4.13z" opacity="0"/></svg></a>'
     )
     return f'''<footer class="site-footer"><div class="container">
   <div class="footer-grid">
     <div class="footer-brand">
       {logo()}
       <div class="reviews-badge"><span class="stars">★★★★★</span><span><strong>5,000+ five-star reviews</strong></span></div>
-      <p style="margin-top:18px"><a href="{PHONE_TEL}"><strong>{esc(PHONE)}</strong></a><br><a href="{MAPS_URL}" target="_blank" rel="noopener">{esc(ADDRESS)}</a><br><span class="small">{esc(HOURS)}</span></p>
+      <p style="margin-top:18px"><a href="{PHONE_TEL}"><strong>{esc(PHONE)}</strong></a><br><a href="{MAPS_URL}" target="_blank" rel="noopener">{ADDRESS_HTML}</a><br><span class="small">{esc(HOURS)}</span></p>
       <div class="social">{social}</div>
     </div>
     {col("Grow", grow)}
@@ -1987,7 +1989,7 @@ def build_support(page: dict) -> str:
     flat0 = flatten(S[0]["blocks"])
     h1 = next(b for b in flat0 if b["type"] == "heading")
     sub = next((b for b in flat0 if b["type"] == "heading" and b is not h1), None)
-    tiles = f'''<div class="contact-tiles" style="margin-top:36px"><div class="card" data-reveal><span class="icon-tile">{I.icon("phone")}</span><h3>Call us</h3><p><a href="{PHONE_TEL}"><strong>{esc(PHONE)}</strong></a><br><span class="small muted">{esc(HOURS)}</span></p></div><div class="card" data-reveal style="--i:1"><span class="icon-tile teal">{I.icon("mail")}</span><h3>Email</h3></div><div class="card" data-reveal style="--i:2"><span class="icon-tile violet">{I.icon("pin")}</span><h3>Visit</h3><p>{esc(ADDRESS)}</p></div></div>'''
+    tiles = f'''<div class="contact-tiles" style="margin-top:36px"><div class="card" data-reveal><span class="icon-tile">{I.icon("phone")}</span><h3>Call us</h3><p><a href="{PHONE_TEL}"><strong>{esc(PHONE)}</strong></a><br><span class="small muted">{esc(HOURS)}</span></p></div><div class="card" data-reveal style="--i:1"><span class="icon-tile teal">{I.icon("mail")}</span><h3>Email</h3></div><div class="card" data-reveal style="--i:2"><span class="icon-tile violet">{I.icon("pin")}</span><h3>Visit</h3><p>{ADDRESS_HTML}</p></div></div>'''
     hero = f'<section class="hero compact">{orbs()}<div class="container"><div class="hero-center"><span class="eyebrow">Support</span><h1 class="words">{heading_html(h1["html"])}</h1></div>{tiles}</div></section>'
     form = f'<section class="section paper has-photo" id="get-started">{section_photo("support")}<div class="container"><div class="split" style="align-items:start"><div data-reveal="left"><span class="eyebrow">Talk to us</span><h2>Real people. Real answers.</h2><ul class="checks"><li>Lubbock, TX based support team</li><li>Phone support {esc(HOURS)}</li><li>24/7 email support</li></ul></div><div data-reveal="right">{support_form()}</div></div></div></section>'
     return layout(page, hero + form + cta_band("Prefer a walkthrough?", "Book a personalized demo and see the platform in action.", ("Book a demo", "/book-a-demo/"), ("Read the FAQ", "/frequently-asked-questions/")))
@@ -2037,6 +2039,26 @@ def build_directory_scan(page: dict) -> str:
     return layout(page, hero + form + cta_band("Fix every listing, everywhere.", "Our Local Online Listings service keeps your business accurate across 200+ directories.", ("Explore Local Listings", "/business-listings/"), ("Book a demo", "/book-a-demo/")))
 
 
+NETLIFY_FORMS = {
+    "quote": ["business", "name", "email", "zip", "phone", "consent_sms", "consent_marketing", "source", "page"],
+    "support": ["current_client", "first_name", "last_name", "company", "phone", "email", "comments", "page"],
+    "privacy-request": ["first_name", "last_name", "email", "phone", "state", "relationship", "request_type", "details", "attest", "page"],
+    "signin": ["email", "page"], "agent-signin": ["email", "page"], "forgot-password": ["email", "page"], "signup": ["name", "email", "page"],
+}
+
+
+def build_forms_page() -> str:
+    """Netlify Forms detects forms from static HTML at deploy time. The live forms submit through JS,
+    so this hidden page declares each form's fields once; main.js mirrors every submission here and
+    Netlify emails it to the owner (Forms → Form notifications)."""
+    forms = "".join(
+        f'<form name="{n}" method="POST" action="/forms/" data-netlify="true" netlify-honeypot="website" hidden><input type="hidden" name="form-name" value="{n}">'
+        + "".join(f'<input type="text" name="{f}">' for f in fields) + '<input type="text" name="website"></form>'
+        for n, fields in NETLIFY_FORMS.items())
+    body = f'<section class="hero compact">{orbs()}<div class="container"><div class="hero-center"><span class="eyebrow">Forms</span><h1>Thank you</h1><div class="btn-row">{btn("Back to home", "/", "primary")}</div></div></div></section>{forms}'
+    return layout({"path": "/forms/", "title": "Forms", "description": "Form definitions.", "noindex": True}, body)
+
+
 def build_admin() -> str:
     tpl = open(os.path.join(HERE, "assets", "admin.html"), encoding="utf-8").read()
     return (tpl.replace("{{BRAND}}", esc(BRAND)).replace("{{BRAND_SHORT}}", esc(BRAND_SHORT)).replace("{{CSS}}", ASSET_URL["css"])
@@ -2057,7 +2079,7 @@ def build_privacy_form(page: dict) -> str:
 <div class="form-actions"><button type="submit" class="btn btn-blue">Submit request</button></div>
 <p class="form-fine">We will verify your identity before acting on your request and respond within the time required by applicable law. See our <a href="/privacy-policy/">Privacy Policy</a> for details.</p></form></div>'''
     body = f'''<section class="hero compact">{orbs()}<div class="container">{breadcrumb([("Home", "/"), ("Privacy Policy", "/privacy-policy/"), ("Privacy request form", "")])}<div class="hero-copy"><span class="eyebrow">Legal</span><h1 class="words">Privacy web form</h1></div></div></section>
-<section class="section legal"><div class="container"><div class="two-col-doc"><div class="prose small"><h3 class="h4">Your rights</h3><p><a href="{PHONE_TEL}">{esc(PHONE)}</a><br>{esc(ADDRESS)}</p></div>{form}</div></div></section>'''
+<section class="section legal"><div class="container"><div class="two-col-doc"><div class="prose small"><h3 class="h4">Your rights</h3><p><a href="{PHONE_TEL}">{esc(PHONE)}</a><br>{ADDRESS_HTML}</p></div>{form}</div></div></section>'''
     return layout(page, body)
 
 
@@ -2229,6 +2251,7 @@ def main():
 
     # admin dashboard (single-page app, served statically; data comes from /api/admin/*)
     write(OUT, "/admin/", build_admin())
+    write(OUT, "/forms/", build_forms_page())
     # search + 404
     emit("/search/", build_search(tax), "0.3")
     write(OUT, "/404.html", build_404(posts))
@@ -2238,7 +2261,7 @@ def main():
     # sitemap / robots / redirects
     sm = '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' + "".join(f"<url><loc>{esc(SITE_URL + u)}</loc><priority>{pr}</priority></url>\n" for u, pr in urls) + "</urlset>\n"
     write(OUT, "/sitemap.xml", sm)
-    write(OUT, "/robots.txt", f"User-agent: *\nAllow: /\nDisallow: /help-center/\nDisallow: /thank-you/\nDisallow: /admin/\nDisallow: /api/\nSitemap: {SITE_URL}/sitemap.xml\n")
+    write(OUT, "/robots.txt", f"User-agent: *\nAllow: /\nDisallow: /help-center/\nDisallow: /thank-you/\nDisallow: /admin/\nDisallow: /api/\nDisallow: /forms/\nSitemap: {SITE_URL}/sitemap.xml\n")
     redirects = "\n".join([
         "/api/*  /.netlify/functions/:splat  200",
         "/automated-email-sms/ /automated-email-and-sms/ 301", "/business-management-platform/ /run/ 301", "/business-email-managment/ /business-email-management/ 301",
