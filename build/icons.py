@@ -185,7 +185,7 @@ def mock_dashboard(label: str = "Leads this month") -> str:
 <g class="type"><circle cx="388" cy="262" r="9" fill="#eef1f6"/><path d="M384 262l3 3 5-5" stroke="#5a6e96" stroke-width="2" fill="none" stroke-linecap="round"/><text x="404" y="266" font-size="11" fill="#16305a" {_FONT}>Review request · 5.0 ★</text></g>
 <g class="type"><circle cx="388" cy="292" r="9" fill="#eef1f7"/><circle cx="388" cy="292" r="3" fill="#4f86c6"/><text x="404" y="296" font-size="11" fill="#16305a" {_FONT}>Booking · 2:30 PM</text></g>
 <g class="type"><circle cx="388" cy="322" r="9" fill="#f1f3f7"/><circle cx="388" cy="322" r="3" fill="#8a9bbb"/><text x="404" y="326" font-size="11" fill="#16305a" {_FONT}>New message · Google</text></g>
-<rect x="380" y="350" width="136" height="26" rx="13" fill="#0b1f3f"/><text x="448" y="367" font-size="11" font-weight="600" fill="#fff" text-anchor="middle" {_FONT}>Open inbox</text>
+<rect x="380" y="350" width="136" height="26" rx="13" fill="#e4e9f2"/><text x="448" y="367" font-size="11" font-weight="600" fill="#0b1f3f" text-anchor="middle" {_FONT}>Open inbox</text>
 </svg>'''
 
 
@@ -200,15 +200,15 @@ def mock_search(brand: str = "Your business") -> str:
         g += f'<line x1="280" y1="210" x2="{x:.0f}" y2="{y:.0f}" stroke="{col}" stroke-width="1.5" opacity=".35" stroke-dasharray="4 5"/>'
         g += f'<g class="type"><rect x="{x-52:.0f}" y="{y-18:.0f}" width="104" height="36" rx="18" fill="#fff" stroke="#e3e7ef"/><circle cx="{x-32:.0f}" cy="{y:.0f}" r="6" fill="{col}"/><text x="{x-20:.0f}" y="{y+4:.0f}" font-size="12" font-weight="600" fill="#16305a" {_FONT}>{name}</text></g>'
     return f'''<svg class="mock" viewBox="0 0 560 420" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Search everywhere diagram">
-<defs><linearGradient id="msg" x1="0" x2="1" y1="0" y2="1"><stop offset="0" stop-color="#2a5a9c"/><stop offset=".6" stop-color="#4f86c6"/><stop offset="1" stop-color="#5a6e96"/></linearGradient></defs>
+<defs><linearGradient id="msg" x1="0" x2="1" y1="0" y2="1"><stop offset="0" stop-color="#dde5f1"/><stop offset="1" stop-color="#e9eef6"/></linearGradient></defs>
 <circle class="ring" cx="280" cy="210" r="70" fill="none" stroke="#2a5a9c" stroke-width="2"/>
 <circle class="ring" cx="280" cy="210" r="70" fill="none" stroke="#4f86c6" stroke-width="2" style="animation-delay:-1.6s"/>
 <g class="spin" style="transform-origin:280px 210px"><circle cx="280" cy="210" r="110" fill="none" stroke="#e3e7ef" stroke-dasharray="3 8"/></g>
 {g}
 <circle cx="280" cy="210" r="46" fill="url(#msg)"/>
 <circle cx="280" cy="210" r="46" fill="none" stroke="#fff" stroke-width="3"/>
-<text x="280" y="206" font-size="11" fill="#fff" text-anchor="middle" opacity=".85" {_FONT}>{brand[:16]}</text>
-<text x="280" y="222" font-size="12" font-weight="700" fill="#fff" text-anchor="middle" {_FONT}>Found</text>
+<text x="280" y="206" font-size="11" fill="#2a5a9c" text-anchor="middle" opacity=".9" {_FONT}>{brand[:16]}</text>
+<text x="280" y="222" font-size="12" font-weight="700" fill="#0b1f3f" text-anchor="middle" {_FONT}>Found</text>
 <rect x="150" y="360" width="260" height="40" rx="20" fill="#fff" stroke="#e3e7ef"/>
 <circle cx="172" cy="380" r="7" fill="none" stroke="#2a5a9c" stroke-width="2"/><path d="M177 385l4 4" stroke="#2a5a9c" stroke-width="2" stroke-linecap="round"/>
 <text class="type" x="192" y="384" font-size="12" fill="#16305a" {_FONT}>best plumber near me</text>
@@ -233,7 +233,7 @@ def mock_inbox() -> str:
 <rect x="160" y="24" width="60" height="22" rx="11" fill="#fff" stroke="#e3e7ef"/><text x="190" y="39" font-size="11" fill="#6b7890" text-anchor="middle" {_FONT}>Unread</text>
 <rect x="40" y="76" width="480" height="30" rx="15" fill="#f7f8fb"/><text x="60" y="95" font-size="11" fill="#9aa5b8" {_FONT}>Search conversations</text>
 {r}
-<rect x="380" y="370" width="140" height="30" rx="15" fill="#0b1f3f"/><text x="450" y="389" font-size="11" font-weight="600" fill="#fff" text-anchor="middle" {_FONT}>Reply from one place</text>
+<rect x="380" y="370" width="140" height="30" rx="15" fill="#e4e9f2"/><text x="450" y="389" font-size="11" font-weight="600" fill="#0b1f3f" text-anchor="middle" {_FONT}>Reply from one place</text>
 </svg>'''
 
 
@@ -250,7 +250,7 @@ def mock_calendar() -> str:
     return f'''<svg class="mock" viewBox="0 0 560 420" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Online scheduling calendar">
 <rect x="8" y="8" width="544" height="404" rx="26" fill="#fff" stroke="#e3e7ef"/>
 <text x="48" y="60" font-size="16" font-weight="700" fill="#0b1f3f" {_FONT}>October</text>
-<rect x="420" y="40" width="92" height="28" rx="14" fill="#0b1f3f"/><text x="466" y="58" font-size="11" font-weight="600" fill="#fff" text-anchor="middle" {_FONT}>+ Booking</text>
+<rect x="420" y="40" width="92" height="28" rx="14" fill="#e4e9f2"/><text x="466" y="58" font-size="11" font-weight="600" fill="#0b1f3f" text-anchor="middle" {_FONT}>+ Booking</text>
 {"".join(f'<text x="{48+i*66+29}" y="112" font-size="10" fill="#9aa5b8" text-anchor="middle" {_FONT}>{d}</text>' for i, d in enumerate(["M","T","W","T","F","S","S"]))}
 {cells}
 <g class="type"><rect x="330" y="340" width="190" height="56" rx="14" fill="#fff" stroke="#e3e7ef" filter="drop-shadow(0 8px 16px rgba(16,24,40,.12))"/><circle cx="352" cy="368" r="10" fill="#eef1f6"/><path d="M347 368l3 3 6-6" stroke="#5a6e96" stroke-width="2" fill="none" stroke-linecap="round"/><text x="370" y="364" font-size="11" font-weight="700" fill="#0b1f3f" {_FONT}>Booked · Sat 10:30 AM</text><text x="370" y="380" font-size="10" fill="#6b7890" {_FONT}>Reminder sent automatically</text></g>
@@ -269,7 +269,7 @@ def mock_invoice() -> str:
 <g class="type"><text x="100" y="210" font-size="12" fill="#16305a" {_FONT}>Labor · 3 hrs</text><text x="460" y="210" font-size="12" fill="#16305a" text-anchor="end" {_FONT}>$285.00</text></g>
 <line x1="100" y1="236" x2="460" y2="236" stroke="#e3e7ef"/>
 <text x="100" y="268" font-size="13" font-weight="700" fill="#0b1f3f" {_FONT}>Total</text><text class="type" x="460" y="268" font-size="20" font-weight="700" fill="#0b1f3f" text-anchor="end" {_FONT}>$769.00</text>
-<rect x="100" y="300" width="360" height="42" rx="21" fill="#0b1f3f"/><text x="280" y="326" font-size="13" font-weight="600" fill="#fff" text-anchor="middle" {_FONT}>Pay with card · Apple Pay · ACH</text>
+<rect x="100" y="300" width="360" height="42" rx="21" fill="#e4e9f2"/><text x="280" y="326" font-size="13" font-weight="600" fill="#0b1f3f" text-anchor="middle" {_FONT}>Pay with card · Apple Pay · ACH</text>
 <g class="type"><rect x="100" y="356" width="360" height="28" rx="14" fill="#f7f8fb"/><circle cx="118" cy="370" r="6" fill="#2a5a9c"/><text x="132" y="374" font-size="11" fill="#16305a" {_FONT}>Deposited to your account in 1–2 business days</text></g>
 </svg>'''
 
@@ -312,13 +312,13 @@ def mock_phone(screen: str = "inbox") -> str:
             y = 150 + i * 66
             inner += f'<g class="type"><rect x="46" y="{y}" width="188" height="52" rx="14" fill="#f7f8fb"/><circle cx="70" cy="{y+26}" r="10" fill="{c}" opacity=".2"/><circle cx="70" cy="{y+26}" r="4" fill="{c}"/><text x="90" y="{y+24}" font-size="10.5" font-weight="700" fill="#0b1f3f" {_FONT}>{t}</text><text x="90" y="{y+40}" font-size="9.5" fill="#6b7890" {_FONT}>Tap to respond</text></g>'
     return f'''<svg class="mock" viewBox="0 0 280 560" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Mobile app">
-<rect x="10" y="10" width="260" height="540" rx="44" fill="#0b1f3f"/>
+<rect x="10" y="10" width="260" height="540" rx="44" fill="#e4e9f2"/>
 <rect x="20" y="20" width="240" height="520" rx="36" fill="#fff"/>
 <rect x="100" y="30" width="80" height="22" rx="11" fill="#0b1f3f"/>
 <text x="46" y="98" font-size="17" font-weight="700" fill="#0b1f3f" {_FONT}>Good morning</text>
 <text x="46" y="118" font-size="11" fill="#6b7890" {_FONT}>4 things need you today</text>
 {inner}
-<rect x="46" y="430" width="188" height="40" rx="20" fill="#0b1f3f"/><text x="140" y="455" font-size="11" font-weight="600" fill="#fff" text-anchor="middle" {_FONT}>Open dashboard</text>
+<rect x="46" y="430" width="188" height="40" rx="20" fill="#e4e9f2"/><text x="140" y="455" font-size="11" font-weight="600" fill="#0b1f3f" text-anchor="middle" {_FONT}>Open dashboard</text>
 <rect x="40" y="500" width="200" height="1" fill="#e3e7ef"/>
 {"".join(f'<circle cx="{70+i*50}" cy="520" r="6" fill="{"#2a5a9c" if i==0 else "#e3e7ef"}"/>' for i in range(4))}
 </svg>'''
@@ -335,7 +335,7 @@ def mock_crm() -> str:
 <rect x="8" y="8" width="544" height="404" rx="26" fill="#fff" stroke="#e3e7ef"/>
 <rect x="8" y="8" width="544" height="52" rx="26" fill="#f7f8fb"/><rect x="8" y="34" width="544" height="26" fill="#f7f8fb"/>
 <text x="40" y="40" font-size="14" font-weight="700" fill="#0b1f3f" {_FONT}>Contacts</text>
-<rect x="400" y="24" width="120" height="24" rx="12" fill="#0b1f3f"/><text x="460" y="40" font-size="11" font-weight="600" fill="#fff" text-anchor="middle" {_FONT}>+ Add contact</text>
+<rect x="400" y="24" width="120" height="24" rx="12" fill="#e4e9f2"/><text x="460" y="40" font-size="11" font-weight="600" fill="#0b1f3f" text-anchor="middle" {_FONT}>+ Add contact</text>
 <rect x="40" y="76" width="300" height="30" rx="15" fill="#f7f8fb"/><text x="60" y="95" font-size="11" fill="#9aa5b8" {_FONT}>Search contacts, notes, invoices…</text>
 <rect x="352" y="76" width="80" height="30" rx="15" fill="#eef2f8"/><text x="392" y="95" font-size="11" font-weight="600" fill="#1e4b8f" text-anchor="middle" {_FONT}>Leads 24</text>
 <rect x="440" y="76" width="80" height="30" rx="15" fill="#fff" stroke="#e3e7ef"/><text x="480" y="95" font-size="11" fill="#6b7890" text-anchor="middle" {_FONT}>All 1,204</text>
@@ -345,14 +345,14 @@ def mock_crm() -> str:
 
 def mock_ads() -> str:
     return f'''<svg class="mock" viewBox="0 0 560 420" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Targeted advertising">
-<rect x="150" y="16" width="260" height="388" rx="28" fill="#0b1f3f"/><rect x="158" y="24" width="244" height="372" rx="22" fill="#fff"/>
+<rect x="150" y="16" width="260" height="388" rx="28" fill="#e4e9f2"/><rect x="158" y="24" width="244" height="372" rx="22" fill="#fff"/>
 <rect x="240" y="32" width="80" height="16" rx="8" fill="#0b1f3f"/>
 <g class="type"><rect x="174" y="70" width="212" height="180" rx="16" fill="#f7f8fb" stroke="#e3e7ef"/>
 <circle cx="196" cy="92" r="10" fill="#2a5a9c" opacity=".2"/><circle cx="196" cy="92" r="4" fill="#2a5a9c"/><text x="212" y="90" font-size="9.5" font-weight="700" fill="#0b1f3f" {_FONT}>Your Business</text><text x="212" y="101" font-size="8" fill="#9aa5b8" {_FONT}>Sponsored · Charlotte, NC</text>
 <rect x="186" y="112" width="188" height="90" rx="12" fill="url(#adg)"/>
-<text x="280" y="152" font-size="12" font-weight="700" fill="#fff" text-anchor="middle" {_FONT}>Fall tune-up special</text><text x="280" y="168" font-size="9" fill="#fff" text-anchor="middle" opacity=".9" {_FONT}>Book this week and save 15%</text>
-<rect x="186" y="212" width="90" height="24" rx="12" fill="#0b1f3f"/><text x="231" y="228" font-size="9" font-weight="600" fill="#fff" text-anchor="middle" {_FONT}>Book now</text></g>
-<defs><linearGradient id="adg" x1="0" x2="1" y1="0" y2="1"><stop offset="0" stop-color="#2a5a9c"/><stop offset="1" stop-color="#4f86c6"/></linearGradient></defs>
+<text x="280" y="152" font-size="12" font-weight="700" fill="#0b1f3f" text-anchor="middle" {_FONT}>Fall tune-up special</text><text x="280" y="168" font-size="9" fill="#2a5a9c" text-anchor="middle" opacity=".9" {_FONT}>Book this week and save 15%</text>
+<rect x="186" y="212" width="90" height="24" rx="12" fill="#e4e9f2"/><text x="231" y="228" font-size="9" font-weight="600" fill="#0b1f3f" text-anchor="middle" {_FONT}>Book now</text></g>
+<defs><linearGradient id="adg" x1="0" x2="1" y1="0" y2="1"><stop offset="0" stop-color="#dde5f1"/><stop offset="1" stop-color="#e9eef6"/></linearGradient></defs>
 <g class="type"><rect x="174" y="264" width="212" height="60" rx="14" fill="#fff" stroke="#e3e7ef"/><text x="188" y="286" font-size="9.5" font-weight="700" fill="#0b1f3f" {_FONT}>Campaign performance</text><text x="188" y="304" font-size="9" fill="#2a5a9c" {_FONT}>▲ 3.2% CTR · 148 clicks · 19 leads</text></g>
 <g class="type"><rect x="20" y="120" width="120" height="70" rx="14" fill="#fff" stroke="#e3e7ef"/><text x="34" y="144" font-size="9.5" fill="#6b7890" {_FONT}>Audience</text><text x="34" y="168" font-size="14" font-weight="700" fill="#0b1f3f" {_FONT}>Homeowners</text><text x="34" y="182" font-size="9" fill="#9aa5b8" {_FONT}>within 25 miles</text></g>
 <g class="type"><rect x="420" y="200" width="120" height="70" rx="14" fill="#fff" stroke="#e3e7ef"/><text x="434" y="224" font-size="9.5" fill="#6b7890" {_FONT}>Reach this week</text><text class="pulse" x="434" y="250" font-size="16" font-weight="700" fill="#0b1f3f" {_FONT}>48,200</text></g>
