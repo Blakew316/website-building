@@ -818,15 +818,50 @@ def person_html(b: dict, i: int = 0) -> str:
     return f'''<div class="person" data-reveal style="--i:{i % 8}"><div class="photo"><span class="initials">{esc(initials(name))}</span>{photo}</div><strong>{esc(name)}</strong><span>{esc(pos)}</span></div>'''
 
 
+# Portfolio industry → the licensed photos that represent it (cycled so neighbouring tiles differ)
+PORTFOLIO_PHOTOS = {
+    "auto": ["detailing", "towing", "mobile"], "boutique": ["boutique", "local", "smiling"], "retail": ["boutique", "local", "smiling"],
+    "health": ["clinic", "yoga", "smiling"], "wellness": ["clinic", "yoga", "spa"], "home services": ["contracting", "remodel", "plumbing", "roofing", "tablet"],
+    "hvac": ["hvac", "actech", "tablet"], "landscap": ["landscaping", "lawn", "tree"], "legal": ["lawfirm", "legal", "handshake"],
+    "outdoor": ["outdoor", "tree", "landscaping"], "travel": ["outdoor", "tree", "local"], "pet": ["vet", "smiling", "support"],
+    "restaurant": ["chef", "food", "local"], "spa": ["spa", "events", "smiling"], "event": ["events", "spa", "smiling"],
+    "smoke": ["cigars", "local", "mobile"], "water": ["pressure", "plumbing", "support"], "plumb": ["plumbing", "pressure", "tablet"],
+    "roof": ["roofing", "contracting", "tablet"], "remodel": ["remodel", "contracting", "local"],
+}
+_PORTFOLIO_SEEN: dict[str, int] = {}
+
+
+def portfolio_photo(cat: str, title: str = "") -> str:
+    """Photo key for a portfolio item: the industry's own photo first, then the other shots for
+    that industry in turn, so neighbouring tiles never repeat."""
+    text = (cat or "").lower()
+    keys = next((v for k, v in PORTFOLIO_PHOTOS.items() if k in text), None)
+    if not keys:
+        k = L.photo_for(cat or "", title or "", default="local")
+        keys = [k, PHOTO_ALT.get(k, "local"), "reviews"]
+    n = _PORTFOLIO_SEEN.get(text, 0)
+    _PORTFOLIO_SEEN[text] = n + 1
+    return keys[n % len(keys)]
+
+
+def pretty_title(raw: str) -> str:
+    """'eliteDetailing-hp' → 'Elite Detailing'."""
+    t = re.sub(r"(?i)[-_ ](hp|home|homepage|\d+)$", "", raw or "")
+    t = re.sub(r"([a-z])([A-Z])", r"\1 \2", t).replace("-", " ").replace("_", " ")
+    return t.strip().title()
+
+
 def gallery_html(images: list[dict], cats: bool = False) -> str:
     tiles = []
     for i, im in enumerate(images):
         cap = im.get("cat") or ""
         cat_attr = f' data-cat="{slugify(cap)}"' if cats else ""
-        alt = im.get("alt") or im.get("title") or (cap + " website") if cap else "Client website"
+        name = pretty_title(im.get("alt") or im.get("title") or "")
+        alt = f"{name} — {cap} website" if name and cap else (name or (cap + " website" if cap else "Client website"))
         cap_html = f'<span class="cap">{esc(cap)}</span>' if cap else ""
-        label = re.sub(r"(?i)\s*(website|screenshot|site)\s*$", "", alt).strip()
-        tiles.append(f'<div class="tile-art"{cat_attr} data-reveal style="--i:{i % 9}">{L.scene_website(label, square=True)}{cap_html}</div>')
+        name_html = f'<span class="name">{esc(name)}</span>' if name else ""
+        photo = L.photo_tag(portfolio_photo(cap, name), alt, sizes="(max-width: 800px) 50vw, 33vw")
+        tiles.append(f'<div class="tile-art photo"{cat_attr} data-reveal style="--i:{i % 9}">{photo}<span class="tile-veil"></span>{name_html}{cap_html}</div>')
     return f'<div class="gallery" id="gallery">{"".join(tiles)}</div>'
 
 
@@ -1127,8 +1162,11 @@ def render_section(sec: dict, idx: int, ctx: dict, page: dict) -> str:
         tail = ""
         if blurbs:
             tail = f'<div style="margin-top:36px">{feature_cards([{"title": b.get("title") or "", "blocks": b["blocks"], "href": b.get("href")} for b in blurbs], ctx, 3 if len(blurbs) != 2 else 2)}</div>'
-        rest_html = render_prose([b for b in others if b["type"] not in ("blurb",)], ctx, 3)
-        tagline = f'<div class="center" style="margin-top:36px" data-reveal>{rest_html}</div>' if rest_html else ""
+        rest_html = render_prose([b for b in others if b["type"] not in ("blurb", "button")], ctx, 3)
+        tagline = f'<div class="narrow prose center" style="margin-top:36px" data-reveal>{rest_html}</div>' if rest_html else ""
+        btns = [b for b in others if b["type"] == "button"]
+        if btns:
+            tagline += f'<div class="btn-row center" style="margin-top:44px" data-reveal>{"".join(btn(b["text"].strip().title(), fix_href(b["href"], ctx["path"], ctx["has_form"]), "primary" if i == 0 else "ghost") for i, b in enumerate(btns[:2]))}</div>'
         steps_mode = bool(tables_are_steps([b for b in flat if b["type"] == "pricing"]))
         return f'<section class="section paper"><div class="container">{intro_html(intro, "How it works" if steps_mode else "Packages")}{pr}{tail}{tagline}</div></section>'
 
@@ -1144,7 +1182,7 @@ def render_section(sec: dict, idx: int, ctx: dict, page: dict) -> str:
         for c in cars:
             body += carousel([quote_card(s["html"], s["author"], "", s.get("stars", 5)) for s in c["slides"]])
         buttons = [b for b in flat if b["type"] == "button"]
-        bh = f'<div class="btn-row center" style="margin-top:32px">{"".join(btn(b["text"], fix_href(b["href"], path, ctx["has_form"]), "ghost") for b in buttons)}</div>' if buttons else ""
+        bh = f'<div class="btn-row center" style="margin-top:44px" data-reveal>{"".join(btn(b["text"].strip().title(), fix_href(b["href"], path, ctx["has_form"]), "ghost") for b in buttons)}</div>' if buttons else ""
         intro = [b for b in intro if b["type"] != "button"]
         return f'<section class="section wm"><div class="container">{intro_html(intro, eyebrow or "What clients say")}{body}{bh}</div></section>'
 
@@ -1228,7 +1266,7 @@ def render_section(sec: dict, idx: int, ctx: dict, page: dict) -> str:
             # image + blurbs → split with image on one side
             left = intro_html(intro, eyebrow, center=False) + body
             return f'<section class="section"><div class="container"><div class="split{" reverse" if idx % 2 else ""}"><div>{left}</div><div>{media_html(pre_imgs, ctx)}</div></div>{pre}</div></section>'
-        bh = f'<div class="btn-row center" style="margin-top:32px">{"".join(btn(b["text"], fix_href(b["href"], path, ctx["has_form"]), "primary") for b in buttons)}</div>' if buttons else ""
+        bh = f'<div class="btn-row center" style="margin-top:44px" data-reveal>{"".join(btn(b["text"].strip().title(), fix_href(b["href"], path, ctx["has_form"]), "primary") for b in buttons)}</div>' if buttons else ""
         return f'<section class="section paper"><div class="container">{intro_html(intro, eyebrow)}{pre}{body}{bh}</div></section>'
 
     # --- columns ---
@@ -1243,9 +1281,14 @@ def render_columns_section(blocks: list[dict], idx: int, ctx: dict, eyebrow: str
     if True:
         intro, rest = split_head(blocks)
         parts = [intro_html(intro, eyebrow)]
+        trailing_btns = [b for b in rest if b["type"] == "button" and rest and rest[-1]["type"] == "button"]
         for b in rest:
             if b["type"] != "columns":
-                parts.append(f'<div class="narrow prose" data-reveal>{render_prose([b], ctx, 3)}</div>')
+                if b in trailing_btns:
+                    continue
+                inner = render_prose([b], ctx, 3)
+                if inner.strip():
+                    parts.append(f'<div class="narrow prose" data-reveal>{inner}</div>')
                 continue
             cards = cards_from_columns(b, ctx)
             if cards:
@@ -1276,7 +1319,23 @@ def render_columns_section(blocks: list[dict], idx: int, ctx: dict, eyebrow: str
                 parts.append(f'<div class="grid grid-{min(len(cols), 3)}">{inner}</div>')
             else:
                 parts.append(columns_generic(b, ctx))
+        if trailing_btns:
+            parts.append(f'<div class="btn-row center" style="margin-top:44px" data-reveal>{"".join(btn(b["text"].strip().title(), fix_href(b["href"], path, ctx["has_form"]), "primary" if i == 0 else "ghost") for i, b in enumerate(trailing_btns[:2]))}</div>')
         return f'<section class="section{" paper" if idx % 2 == 0 and idx > 0 else ""}"><div class="container">{"".join(parts)}</div></section>'
+
+
+_HEAD_ONLY = re.compile(r'^<section class="section( paper)?"><div class="container"><div class="section-head"[^>]*>(?:(?!</div>).)*</div></div></section>$', re.S)
+
+
+def rhythm(html: str, prev_paper: bool) -> str:
+    """Keep consecutive sections lined up: a heading-only section becomes a compact lead-in for the
+    section that follows it, and two plain paper sections never sit back to back."""
+    if _HEAD_ONLY.match(html):
+        html = re.sub(r'^<section class="section( paper)?">', '<section class="section tight lead-in">', html)
+        return html
+    if prev_paper and html.startswith('<section class="section paper">'):
+        html = '<section class="section">' + html[len('<section class="section paper">'):]
+    return html
 
 
 def render_tail_section(blocks: list[dict], idx: int, ctx: dict, eyebrow: str, flat: list[dict], ts: list[str], imgs: list[dict]) -> str:
@@ -1428,12 +1487,15 @@ def build_generic(page: dict, hero_variant: str = "auto", eyebrow: str = None, e
         parts.append(f'<section class="hero compact">{orbs()}<div class="container hero-center"><h1 class="words">{esc(page["title"])}</h1></div></section>')
     parts.append(extra_after_hero)
     has_app = False
+    prev_paper = False
     for i, sec in enumerate(sections[1:], start=1):
         html = render_section(sec, i, ctx, page)
         if 'class="app-promo"' in html:
             if has_app or skip_app:
                 continue
             has_app = True
+        html = rhythm(html, prev_paper)
+        prev_paper = html.startswith('<section class="section paper"')
         parts.append(html)
     parts.append(tail)
     if not any("cta-band" in p for p in parts):
@@ -1670,7 +1732,7 @@ def build_our_work(page: dict) -> str:
 # ---------- projects ----------
 def project_card(p: dict, cats: dict, i: int) -> str:
     cat = next((c for c in cats.values() if p["slug"] in c["projects"]), None)
-    return f'''<a class="post-card" href="{esc(p["path"])}" data-reveal style="--i:{i % 6}"><div class="thumb">{L.scene_website(p["title"])}</div>
+    return f'''<a class="post-card" href="{esc(p["path"])}" data-reveal style="--i:{i % 6}"><div class="thumb">{L.photo_tag(portfolio_photo(cat["name"] if cat else "", p["title"]), f"{p['title']} website", sizes="(max-width: 720px) 100vw, 33vw")}</div>
 <div class="body"><div class="cats">{f"<span>{esc(cat['name'])}</span>" if cat else ""}</div><h3>{esc(p["title"])}</h3><div class="meta"><span>{esc(fmt_date(p.get("date") or ""))}</span></div></div></a>'''
 
 
@@ -1690,7 +1752,7 @@ def build_project(p: dict, projects: dict, pcats: dict) -> str:
     related = [x for x in projects.values() if x["slug"] != p["slug"] and (not cat or x["slug"] in cat["projects"])][:3]
     hero = f'''<section class="hero compact">{orbs()}<div class="container">{breadcrumb([("Home", "/"), ("Projects", "/project/"), (cat["name"], cat["path"]) if cat else ("Project", ""), (p["title"], "")])}
 <div class="hero-center"><span class="eyebrow">{esc(cat["name"] if cat else "Project")}</span><h1 class="words">{esc(p["title"])}</h1></div></div></section>
-<section class="section tight"><div class="container"><div class="device frame" data-reveal="scale">{L.scene_website(p["title"])}</div></div></section>
+<section class="section tight"><div class="container"><div class="device frame" data-reveal="scale">{L.photo_tag(portfolio_photo(cat["name"] if cat else "", p["title"]), f"{p['title']} website", lazy=False, sizes="(max-width: 1100px) 100vw, 1100px")}</div></div></section>
 <section class="section paper"><div class="container"><div class="grid grid-3"><div class="card"><span class="icon-tile">{I.icon("layout")}</span><h3>Mobile-first design</h3><p>Built to look sharp and load fast on every device.</p></div><div class="card"><span class="icon-tile teal">{I.icon("search")}</span><h3>Search-ready structure</h3><p>Service pages, geo pages and FAQs structured for local search.</p></div><div class="card"><span class="icon-tile violet">{I.icon("target")}</span><h3>Lead conversion built in</h3><p>Booking, quotes and click-to-call wired into the platform.</p></div></div></div></section>'''
     rel = f'<section class="section"><div class="container"><div class="section-head"><h2>More projects</h2></div><div class="post-grid">{"".join(project_card(x, pcats, i) for i, x in enumerate(related))}</div></div></section>' if related else ""
     return layout({"path": p["path"], "title": p["title"], "description": f"{p['title']} — a custom website built by {BRAND}.", "image": p.get("image")}, hero + rel + cta_band("Ready for a site like this?", "We'll design, build and manage it — and connect it to the tools that run your business."))

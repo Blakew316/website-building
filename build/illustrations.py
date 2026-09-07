@@ -244,6 +244,12 @@ SCENES = {
     "search": scene_search, "reviews": scene_reviews, "email": scene_email, "social": scene_social,
 }
 KEYS = [
+    (r"\bvet|veterinar|pet\b|pets\b|dog|cat\b|groom|animal", "vet"), (r"\bspa\b|massage|salon|beauty|nail|facial|skin", "spa"),
+    (r"boutique|clothing|apparel|fashion|jewel|gift shop", "boutique"), (r"clinic|doctor|dental|dentist|chiropract|medical|physician|health|wellness|therap", "clinic"),
+    (r"yoga|fitness|gym|pilates|crossfit|martial|studio", "yoga"), (r"outdoor|travel|hik|camp|adventure|tour|rv\b|guide", "outdoor"),
+    (r"detail|car wash|auto spa|ceramic|tint", "detailing"), (r"chef|catering|bistro|kitchen", "chef"), (r"wedding|event|venue|banquet|party|dj\b", "events"),
+    (r"smoke|vape|cigar|tobacco|hookah", "cigars"), (r"pressure wash|power wash|soft wash|water service|water damage|restoration|irrigation|well\b|softener|filtration", "pressure"),
+    (r"lawn|mow|turf|sod\b", "lawn"),
     (r"hvac|heating|cooling|air condition|furnace", "hvac"), (r"plumb|drain|water heater", "plumbing"), (r"roof", "roofing"),
     (r"remodel|kitchen|bath|renovat", "remodel"), (r"contract|construct|builder|handyman", "contracting"), (r"\btree|arborist", "tree"),
     (r"landscap|lawn|garden|yard", "landscaping"), (r"restaurant|food|beverage|bakery|caf|catering|dining|pizza|bar\b", "food"),
@@ -260,7 +266,8 @@ KEYS = [
 # self-hosted under /assets/photos/ at 1600w and 800w)
 # ---------------------------------------------------------------------------
 PHOTOS = ["colleagues", "contracting", "email", "finance", "food", "handshake", "hvac", "landscaping", "legal", "local", "meeting", "mobile", "office",
-          "plumbing", "remodel", "reporting", "reviews", "roofing", "search", "smiling", "social", "support", "tablet", "team", "towing", "tree", "website"]
+          "plumbing", "remodel", "reporting", "reviews", "roofing", "search", "smiling", "social", "support", "tablet", "team", "towing", "tree", "website",
+          "vet", "spa", "boutique", "clinic", "outdoor", "detailing", "chef", "lawfirm", "lawn", "actech", "pressure", "cigars", "events", "yoga"]
 PHOTO_KEYS = [
     (r"invoice|estimate|billing|payment|merchant|pricing|price|cost|budget|financ|account|tax|revenue|profit", "finance"),
     (r"report|analytic|dashboard|insight|data|metric|kpi|track", "reporting"), (r"review|reputation|rating|testimonial|trust|star", "reviews"),
@@ -268,6 +275,12 @@ PHOTO_KEYS = [
     (r"seo|search|rank|google|listing|director|citation|\bai\b|visib|keyword|found", "search"), (r"website|web design|site\b|landing|domain|hosting|page speed|wordpress", "website"),
     (r"app\b|mobile|phone|smartphone|text", "mobile"), (r"support|help|service|headset|call center|phone call", "support"),
     (r"partner|handshake|deal|agreement|referral|network", "handshake"), (r"tablet|field|job site|on-site|crew", "tablet"),
+    (r"\bvet|veterinar|pet\b|pets\b|dog|cat\b|groom|animal", "vet"), (r"\bspa\b|massage|salon|beauty|nail|facial|skin", "spa"),
+    (r"boutique|clothing|apparel|fashion|jewel|gift shop", "boutique"), (r"clinic|doctor|dental|dentist|chiropract|medical|physician|health|wellness|therap", "clinic"),
+    (r"yoga|fitness|gym|pilates|crossfit|martial|studio", "yoga"), (r"outdoor|travel|hik|camp|adventure|tour|rv\b|guide", "outdoor"),
+    (r"detail|car wash|auto spa|ceramic|tint", "detailing"), (r"chef|catering|bistro|kitchen", "chef"), (r"wedding|event|venue|banquet|party|dj\b", "events"),
+    (r"smoke|vape|cigar|tobacco|hookah", "cigars"), (r"pressure wash|power wash|soft wash|water service|water damage|restoration|irrigation|well\b|softener|filtration", "pressure"),
+    (r"lawn|mow|turf|sod\b", "lawn"),
     (r"hvac|heating|cooling|air condition|furnace", "hvac"), (r"plumb|drain|water heater", "plumbing"), (r"roof", "roofing"),
     (r"remodel|kitchen|bath|renovat|cabinet", "remodel"), (r"general contract|contract|construct|builder|handyman", "contracting"), (r"\btree|arborist", "tree"),
     (r"landscap|lawn|garden|yard", "landscaping"), (r"restaurant|food|beverage|bakery|caf|catering|dining|pizza|bar\b|grill|fish|fry|bbq|diner|brew|coffee|taco|burger|deli|chef", "food"),
