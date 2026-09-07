@@ -98,7 +98,7 @@ sessions, leads, conversion, sources, locations, devices, busiest hours, landing
 | --- | --- |
 | Brand text | Every "Townsquare Interactive / Townsquare / TSI" mention is rewritten to Meridian Local. |
 | Navigation | The five-link header became mega-menus (Grow, Run, Industries, Support, Company) that reach every page. |
-| Product screenshots | PNG screenshots of the old app are replaced with SVG mockups; photos (JPG/WEBP) are kept and hot-linked from the original CDN with a branded fallback if they ever fail to load. |
+| Imagery | The archive only hot-linked a CDN that no longer serves anything, so the site draws its own: flat single-palette illustrations for industries, products and articles (`build/illustrations.py`), SVG product mockups for the old app screenshots, browser-frame cards for the portfolio, and a real map of the lower 48 with one linked pin per market. No page depends on an external image or video. |
 | Forms | The Gravity Forms quote/support forms are rebuilt as accessible, validated forms. Set `FORM_ENDPOINT` in `build/site.py` (Formspree, Netlify Forms, your API) to receive submissions; until then submissions show an inline success state / redirect to `/thank-you/`. |
 | Privacy web form | The Osano DSAR iframe is replaced by a native privacy-request form. |
 | Help center | The Zendesk sign-in / agent sign-in / password pages are recreated as static pages under `/help-center/`. |

@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
-<link rel="stylesheet" href="/assets/v/main.6e9e1b28e6.css">
+<link rel="stylesheet" href="/assets/v/main.5895eb4995.css">
 <style>
   body { background: var(--paper); min-height: 100vh; }
   .adm { display: grid; grid-template-columns: 236px 1fr; min-height: 100vh; }
@@ -86,6 +86,11 @@
   .hours { display: grid; grid-template-columns: repeat(24, 1fr); gap: 3px; align-items: end; height: 70px; }
   .hours i { display: block; background: var(--steel); border-radius: 3px 3px 0 0; min-height: 2px; opacity: .75; }
   .hint { font-size: .8rem; color: var(--muted); margin-top: 8px; }
+  .drop { border: 1.5px dashed var(--line-2); border-radius: 16px; padding: 26px; text-align: center; color: var(--muted); font-size: .92rem; transition: background .2s, border-color .2s; cursor: pointer; }
+  .drop.over, .drop:hover { background: var(--paper); border-color: var(--steel); }
+  .drop input { display: none; }
+  .preview { overflow: auto; max-height: 260px; margin-top: 14px; }
+  .preview table { font-size: .8rem; }
   [hidden] { display: none !important; }
 </style>
 </head>
@@ -185,6 +190,7 @@
       <nav class="adm-nav" id="nav">
         <a href="#overview" class="on" data-view="overview"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="6.5" height="6.5" rx="2"/><rect x="13.5" y="4" width="6.5" height="6.5" rx="2"/><rect x="4" y="13.5" width="6.5" height="6.5" rx="2"/><rect x="13.5" y="13.5" width="6.5" height="6.5" rx="2"/></svg>Overview</a>
         <a href="#leads" data-view="leads"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="9.5" cy="8.5" r="3.25"/><path d="M3.5 19.5a6 6 0 0 1 12 0"/><path d="M15.5 5.6a3.25 3.25 0 0 1 0 5.8"/><path d="M17.5 14.2a6 6 0 0 1 3 5.3"/></svg>Leads</a>
+        <a href="#customers" data-view="customers"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="7" width="17" height="12.5" rx="3"/><path d="M9 7V5.5A1.5 1.5 0 0 1 10.5 4h3A1.5 1.5 0 0 1 15 5.5V7M3.5 12h17"/></svg>Customers</a>
         <a href="#activity" data-view="activity"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 12h4l2.5-6 4 12 2.5-6h4"/></svg>Activity</a>
         <a href="#pages" data-view="pages"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 3.5h7l4 4v13h-11Z"/><path d="M13.5 3.5v4h4"/></svg>Pages &amp; sources</a>
         <a href="#settings" data-view="settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.6 1.6 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.6 1.6 0 0 0-1.8-.3 1.6 1.6 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.6 1.6 0 0 0-1-1.5 1.6 1.6 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.6 1.6 0 0 0 .3-1.8 1.6 1.6 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.6 1.6 0 0 0 1.5-1 1.6 1.6 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.6 1.6 0 0 0 1.8.3H9a1.6 1.6 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.6 1.6 0 0 0 1 1.5 1.6 1.6 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.6 1.6 0 0 0-.3 1.8V9a1.6 1.6 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.6 1.6 0 0 0-1.5 1Z"/></svg>Settings</a>
@@ -196,6 +202,6 @@
   <div class="scrim" id="scrim"></div>
   <aside class="drawer" id="drawer" aria-label="Lead details"></aside>
 </div>
-<script src="/assets/v/admin.802af4f62a.js" defer></script>
+<script src="/assets/v/admin.d6d226e6c7.js" defer></script>
 </body>
 </html>

@@ -70,6 +70,32 @@ test("admin requires a session, then serves overview / leads / events / csv", as
   const csv = await (await get("export.csv", cookie)).text();
   assert.match(csv, /jo@example.com/);
   assert.match(csv, /contacted/);
+  // customers import (CSV rows already parsed client-side), de-dup by email, list, csv
+  const imp = await (await admin(new Request("https://example.com/api/admin/import", { method: "POST", body: JSON.stringify({ kind: "subscriber", source: "billing.csv", rows: [
+    { "Customer Name": "Acme Plumbing", "Email": "OWNER@acme.com", "Phone": "704-555-0100", "Plan": "Grow + Run", "Status": "Active", "Start Date": "2024-03-01", "Monthly Amount": "$349" },
+    { "Customer Name": "Blue Ridge Bakery", "Email": "hi@blueridge.com", "Status": "Cancelled", "Start Date": "2023-11-15", "MRR": "199" },
+    { "Customer Name": "", "Email": "", "Phone": "" } ] }), headers: { cookie, "Content-Type": "application/json" } }), ctx)).json();
+  assert.deepEqual([imp.created, imp.updated, imp.skipped], [2, 0, 1]);
+  const imp2 = await (await admin(new Request("https://example.com/api/admin/import", { method: "POST", body: JSON.stringify({ kind: "subscriber", rows: [{ Email: "owner@acme.com", Plan: "Run", Notes: "upgraded" }] }), headers: { cookie, "Content-Type": "application/json" } }), ctx)).json();
+  assert.deepEqual([imp2.created, imp2.updated], [0, 1]);
+  const cl = await (await get("customers?kind=subscriber", cookie)).json();
+  assert.equal(cl.total, 2);
+  assert.equal(cl.byStatus.active, 1);
+  assert.equal(cl.mrr, 548);
+  const acme = cl.items.find((c) => c.email === "owner@acme.com");
+  assert.equal(acme.plan, "Run");
+  assert.equal(acme.mrr, 349);
+  assert.equal(new Date(acme.ts).toISOString().slice(0, 10), "2024-03-01");
+  const bak = cl.items.find((c) => c.email === "hi@blueridge.com");
+  await admin(new Request("https://example.com/api/admin/customer/" + bak.id, { method: "PATCH", body: JSON.stringify({ status: "active", mrr: "249" }), headers: { cookie, "Content-Type": "application/json" } }), ctx);
+  const cl2 = await (await get("customers?kind=subscriber", cookie)).json();
+  assert.equal(cl2.total, 2);
+  assert.equal(cl2.byStatus.active, 2);
+  assert.equal(cl2.mrr, 598);
+  const ov2 = await (await get("overview?days=7", cookie)).json();
+  assert.equal(ov2.customers.total, 2);
+  const ccsv = await (await get("customers.csv", cookie)).text();
+  assert.match(ccsv, /Blue Ridge Bakery/);
   r = await admin(new Request("https://example.com/api/admin/logout", { method: "POST" }), ctx);
   assert.match(r.headers.get("set-cookie"), /Max-Age=0/);
 });

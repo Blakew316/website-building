@@ -22,7 +22,8 @@ import warnings
 
 warnings.filterwarnings("ignore", category=MarkupResemblesLocatorWarning)
 
-import icons as I  # noqa: E402
+import icons as I
+import illustrations as L  # noqa: E402
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 
@@ -249,11 +250,29 @@ def fix_href(href: str | None, page_path: str, has_form: bool) -> str:
     return href
 
 
-def img_tag(b: dict, cls: str = "", lazy: bool = True, sizes_hint: str = "") -> str:
+def is_external(src: str) -> bool:
+    return bool(re.match(r"^(https?:)?//", src or ""))
+
+
+def art_for(*hints: str, cls: str = "", default: str = "") -> str:
+    c = f' class="art-wrap {cls}"' if cls else ' class="art-wrap"'
+    return f"<div{c}>{L.scene_for(*hints, default=default)}</div>"
+
+
+def img_tag(b: dict, cls: str = "", lazy: bool = True, sizes_hint: str = "", hint: str = "") -> str:
+    """Images. The archive only ever hot-linked a CDN that no longer serves anything, so every
+    external image is replaced by a self-hosted illustration chosen from its alt text, file name and
+    page context. Logos of third-party radio stations and personal photos are dropped."""
     src = b.get("src") or ""
-    if is_old_brand_image(src):
+    if is_old_brand_image(src) or "key=logo_img" in src or re.search(r"\.(png|webp)(\?|$)", src) and re.search(r"(?i)headshot|team|staff|-\d{3,4}x\d{3,4}\.", src) and False:
         return ""
     alt = b.get("alt") or b.get("title") or ""
+    if is_external(src):
+        base = os.path.basename(src.split("?")[0]).rsplit(".", 1)[0].replace("-", " ").replace("_", " ")
+        # people photos (webp portraits named after a person) → no photo; the initials avatar takes over
+        if re.search(r"(?i)\.webp$", src.split("?")[0]) and re.search(r"^[A-Z][a-z]+[ -][A-Z][a-z]+", os.path.basename(src)) and not re.search(r"(?i)canine|clinic|hvac|plumb|roof|law|dental|salon", base):
+            return ""
+        return art_for(alt, base, hint, cls=cls)
     wh = ""
     if b.get("w") and b.get("h"):
         wh = f' width="{b["w"]}" height="{b["h"]}"'
@@ -399,7 +418,7 @@ def layout(page: dict, body: str, extra_head: str = "") -> str:
     desc = page.get("description") or f"{BRAND} — {TAGLINE}"
     path = page.get("path", "/")
     robots = '<meta name="robots" content="noindex">' if page.get("noindex") else ""
-    og_image = page.get("image") or f"{SITE_URL}/assets/og.png"
+    og_image = f"{SITE_URL}/assets/og.png"
     canonical = SITE_URL + path
     ld = json.dumps({
         "@context": "https://schema.org", "@type": "Organization", "name": BRAND, "url": SITE_URL,
@@ -667,13 +686,15 @@ def render_prose(blocks: list[dict], ctx: dict, h_level: int = 2) -> str:
     return "\n".join(out)
 
 
-def video_card(b: dict) -> str:
+def video_card(b: dict, hint: str = "") -> str:
     src = b.get("src") or ""
     if not src or src == "about:blank":
         return ""
     if re.search(r"youtube|youtu\.be|vimeo", src):
         return f'<div class="embed video-card"><iframe src="{esc(src)}" loading="lazy" allowfullscreen title="Video"></iframe></div>'
-    poster = f' poster="{esc(b["poster"])}"' if b.get("poster") else ""
+    if is_external(src):  # the archive's self-hosted videos are gone with its CDN
+        return f'<div class="img-wrap rounded shadow">{art_for(hint, b.get("title") or b.get("alt") or "", os.path.basename(src), default="local")}</div>'
+    poster = ""
     return f'''<div class="video-card"><video preload="metadata" playsinline{poster}><source src="{esc(src)}" type="video/mp4"></video>
   <button class="play" aria-label="Play video"><i>{I.icon("play")}</i></button></div>'''
 
@@ -730,15 +751,14 @@ def blurb_card(b: dict, i: int, ctx: dict, plain: bool = False, media: bool = Fa
         link = f'<a class="card-link" href="{esc(href)}" aria-label="{esc(title)}"></a><a class="btn-link" href="{esc(href)}">Learn more {chev()}</a>'
     media_html = ""
     if media and b.get("image") and not is_screenshot(b["image"]):
-        media_html = f'<div class="card-media">{img_tag(b["image"])}</div>'
+        media_html = f'<div class="card-media">{img_tag(b["image"], hint=title)}</div>'
     return f'<div class="card" data-reveal style="--i:{i % 6}">{media_html}<span class="icon-tile {I.tint(i)}">{I.icon(I.icon_for(title + " " + text_of(body)[:80]))}</span><h3>{esc(title)}</h3>{body}{link}</div>'
 
 
 def person_html(b: dict, i: int = 0) -> str:
     name = b.get("name") or b.get("title") or ""
     pos = b.get("position") or ""
-    img = b.get("image")
-    photo = img_tag(img, lazy=True) if img else ""
+    photo = ""
     return f'''<div class="person" data-reveal style="--i:{i % 8}"><div class="photo"><span class="initials">{esc(initials(name))}</span>{photo}</div><strong>{esc(name)}</strong><span>{esc(pos)}</span></div>'''
 
 
@@ -749,7 +769,8 @@ def gallery_html(images: list[dict], cats: bool = False) -> str:
         cat_attr = f' data-cat="{slugify(cap)}"' if cats else ""
         alt = im.get("alt") or im.get("title") or (cap + " website") if cap else "Client website"
         cap_html = f'<span class="cap">{esc(cap)}</span>' if cap else ""
-        tiles.append(f'<a href="{esc(im["src"])}" data-lightbox="{esc(im["src"])}"{cat_attr} data-reveal style="--i:{i % 9}"><img src="{esc(im["src"])}" alt="{esc(alt)}" loading="lazy" decoding="async">{cap_html}</a>')
+        label = re.sub(r"(?i)\s*(website|screenshot|site)\s*$", "", alt).strip()
+        tiles.append(f'<div class="tile-art"{cat_attr} data-reveal style="--i:{i % 9}">{L.scene_website(label, square=True)}{cap_html}</div>')
     return f'<div class="gallery" id="gallery">{"".join(tiles)}</div>'
 
 
@@ -852,7 +873,7 @@ def media_html(blocks: list[dict], ctx: dict, key: str = "") -> str:
         return video_card(vids[0])
     if imgs:
         b = imgs[0]
-        return f'<div class="img-wrap rounded shadow tilt" data-reveal="scale">{img_tag(b)}</div>'
+        return f'<div class="img-wrap rounded shadow tilt" data-reveal="scale">{img_tag(b, hint=ctx["path"] + " " + key)}</div>'
     if all_imgs:
         return mock_from_image(all_imgs[0], ctx, key)
     # fallback: on-brand mockup
@@ -881,7 +902,7 @@ def cards_from_columns(b: dict, ctx: dict) -> str | None:
         if href == "/" and "case-studies" in ctx["path"]:
             href = "/case-studies/"
         title = heading_html(h["html"]) if h else ""
-        media = f'<div class="card-media">{img_tag(img)}</div>' if img and not is_screenshot(img) else ""
+        media = f'<div class="card-media">{img_tag(img, hint=title)}</div>' if img and not is_screenshot(img) else ""
         if img and is_screenshot(img):
             img = None
         body = "".join(f"<p>{p['html']}</p>" for p in ps)
@@ -1300,7 +1321,7 @@ def hero_from_section(sec: dict, ctx: dict, page: dict, variant: str = "auto") -
     if imgs:
         b = imgs[0]
         square = b.get("w") and b.get("h") and abs(b["w"] / b["h"] - 1) < 0.15
-        art = f'<div class="hero-art"><div class="glow"></div><div class="img-wrap rounded shadow tilt" data-reveal="scale" style="{"max-width:460px;margin-inline:auto" if square else ""}">{img_tag(b, lazy=False)}</div></div>'
+        art = f'<div class="hero-art"><div class="glow"></div><div class="img-wrap rounded shadow tilt" data-reveal="scale" style="{"max-width:460px;margin-inline:auto" if square else ""}">{img_tag(b, lazy=False, hint=ctx["path"] + " " + text_of(title))}</div></div>'
         return f'<section class="hero">{orbs()}{bg_video}<div class="container hero-grid">{copy}{art}</div></section>'
     if variant == "center":
         return f'<section class="hero compact">{orbs()}{bg_video}<div class="container"><div class="hero-center">{copy}</div></div></section>'
@@ -1366,6 +1387,9 @@ def build_generic(page: dict, hero_variant: str = "auto", eyebrow: str = None, e
 
 
 # ---------- home ----------
+MARKET_LINKS = {slug: f"/locations/seo-{slug}/" for slug in L.CITIES}
+
+
 def build_home(page: dict, posts: list[dict]) -> str:
     ctx = page_ctx(page, "")
     S = page["sections"]
@@ -1422,7 +1446,7 @@ def build_home(page: dict, posts: list[dict]) -> str:
     map_img = next((b for b in s11 if b["type"] == "image"), None)
     trusted = f'''<section class="section paper"><div class="container">
   <div class="section-head"><span class="eyebrow violet">Trusted nationwide</span><h2>{heading_html(h11[0]["html"])}</h2></div>
-  <div class="device frame" data-reveal="scale">{img_tag(map_img) if map_img and not is_screenshot(map_img) else I.mock_map()}</div>
+  <div class="map-wrap" data-reveal="scale">{L.market_map(MARKET_LINKS, ("76 markets nationwide", "234 local pages · 5,000+ five-star reviews"))}</div>
 </div></section>'''
     # testimonials
     s12 = flatten(S[12]["blocks"])
@@ -1508,12 +1532,12 @@ def build_case_studies(page: dict) -> str:
             buttons.append(b)
     cards = []
     for i, (bl, vid) in enumerate(stories):
-        quote = render_prose(bl["blocks"], ctx, 4)
+        quote = render_prose(bl["blocks"], {**ctx, "doc": True}, 4)
         qtext = esc(text_of(quote).strip("“”\""))
         if vid and vid.get("src") and vid["src"] != "about:blank":
-            media = video_card(vid)
+            media = video_card(vid, hint=bl.get("title") or "")
         elif bl.get("image"):
-            media = f'<div class="img-wrap rounded shadow">{img_tag(bl["image"])}</div>'
+            media = f'<div class="img-wrap rounded shadow">{img_tag(bl["image"], hint=bl.get("title") or "")}</div>'
         else:
             media = ""
         cards.append(f'<div data-reveal style="--i:{i % 4}">{media}<div class="quote-card" style="margin-top:16px;height:auto">{stars()}<blockquote>{qtext}</blockquote><div class="who"><span class="avatar">{esc(initials(bl.get("title") or ""))}</span><span><strong>{esc(bl.get("title") or "")}</strong><span>{esc(BRAND_SHORT)} client</span></span></div></div></div>')
@@ -1586,7 +1610,7 @@ def build_our_work(page: dict) -> str:
 # ---------- projects ----------
 def project_card(p: dict, cats: dict, i: int) -> str:
     cat = next((c for c in cats.values() if p["slug"] in c["projects"]), None)
-    return f'''<a class="post-card" href="{esc(p["path"])}" data-reveal style="--i:{i % 6}"><div class="thumb"><img src="{esc(p["image"] or "")}" alt="{esc(p["title"])} website" loading="lazy"></div>
+    return f'''<a class="post-card" href="{esc(p["path"])}" data-reveal style="--i:{i % 6}"><div class="thumb">{L.scene_website(p["title"])}</div>
 <div class="body"><div class="cats">{f"<span>{esc(cat['name'])}</span>" if cat else ""}</div><h3>{esc(p["title"])}</h3><div class="meta"><span>{esc(fmt_date(p.get("date") or ""))}</span></div></div></a>'''
 
 
@@ -1606,7 +1630,7 @@ def build_project(p: dict, projects: dict, pcats: dict) -> str:
     related = [x for x in projects.values() if x["slug"] != p["slug"] and (not cat or x["slug"] in cat["projects"])][:3]
     hero = f'''<section class="hero compact">{orbs()}<div class="container">{breadcrumb([("Home", "/"), ("Projects", "/project/"), (cat["name"], cat["path"]) if cat else ("Project", ""), (p["title"], "")])}
 <div class="hero-center"><span class="eyebrow">{esc(cat["name"] if cat else "Project")}</span><h1 class="words">{esc(p["title"])}</h1></div></div></section>
-<section class="section tight"><div class="container"><div class="device frame" data-reveal="scale"><a href="{esc(p["image"] or "#")}" data-lightbox="{esc(p["image"] or "")}"><img src="{esc(p["image"] or "")}" alt="{esc(p["title"])} website" loading="eager"></a></div></div></section>
+<section class="section tight"><div class="container"><div class="device frame" data-reveal="scale">{L.scene_website(p["title"])}</div></div></section>
 <section class="section paper"><div class="container"><div class="grid grid-3"><div class="card"><span class="icon-tile">{I.icon("layout")}</span><h3>Mobile-first design</h3><p>Built to look sharp and load fast on every device.</p></div><div class="card"><span class="icon-tile teal">{I.icon("search")}</span><h3>Search-ready structure</h3><p>Service pages, geo pages and FAQs structured for local search.</p></div><div class="card"><span class="icon-tile violet">{I.icon("target")}</span><h3>Lead conversion built in</h3><p>Booking, quotes and click-to-call wired into the platform.</p></div></div></div></section>'''
     rel = f'<section class="section"><div class="container"><div class="section-head"><h2>More projects</h2></div><div class="post-grid">{"".join(project_card(x, pcats, i) for i, x in enumerate(related))}</div></div></section>' if related else ""
     return layout({"path": p["path"], "title": p["title"], "description": f"{p['title']} — a custom website built by {BRAND}.", "image": p.get("image")}, hero + rel + cta_band("Ready for a site like this?", "We'll design, build and manage it — and connect it to the tools that run your business."))
@@ -1632,11 +1656,11 @@ def build_careers(main: dict, sub: dict) -> str:
         blurbs = [b for b in flat if b["type"] == "blurb"]
         if imgs and len(imgs) == 3 and not blurbs:  # awards
             h = first_heading(sec["blocks"])
-            tiles = "".join(f'<div class="award" data-reveal style="--i:{j}"><img src="{esc(b["src"])}" alt="{esc(b.get("alt") or b.get("title") or "Award")}" loading="lazy"><span class="icon-tile amber">{I.icon("award")}</span><strong>{esc(t)}</strong></div>' for j, (b, t) in enumerate(zip(imgs, ["Charlotte Business Journal — Best Places to Work", "Best & Brightest Companies to Work For", "Top Workplace"])))
+            tiles = "".join(f'<div class="award" data-reveal style="--i:{j}"><span class="icon-tile amber">{I.icon("award")}</span><strong>{esc(t)}</strong></div>' for j, (b, t) in enumerate(zip(imgs, ["Charlotte Business Journal Best Places to Work", "Best & Brightest Companies to Work For", "Top Workplaces"])))
             parts.append(f'<section class="section paper"><div class="container"><div class="section-head"><span class="eyebrow amber">Awards</span><h2>{heading_html(h["html"]) if h else "Award-winning workplace"}</h2></div><div class="grid grid-3">{tiles}</div></div></section>')
             continue
         if imgs and len(imgs) >= 6 and not blurbs:  # team photos
-            tiles = "".join(f'<div class="tile" style="aspect-ratio:1;border-radius:20px;overflow:hidden;background:var(--grad-soft)" data-reveal="scale" data-stagger><img src="{esc(b["src"])}" alt="{esc(BRAND_SHORT)} team member" loading="lazy" style="width:100%;height:100%;object-fit:cover"></div>' for b in imgs)
+            tiles = "".join(f'<div class="tile" style="aspect-ratio:1;border-radius:20px;overflow:hidden;background:var(--grad-soft)" data-reveal="scale" data-stagger>{L.SCENES[k]()}</div>' for b, k in zip(imgs, ["people", "local", "social", "website", "reporting", "search", "reviews", "email", "people", "display", "landscaping", "food"]))
             parts.append(f'<section class="section tight" id="life-here"><div class="container"><div class="grid grid-4">{tiles}</div></div></section>')
             continue
         if blurbs and all(b.get("icon") for b in blurbs):  # team quotes
@@ -1761,8 +1785,8 @@ def build_legal(page: dict) -> str:
 # ---------- blog ----------
 def post_card(p: dict, i: int = 0, featured: bool = False) -> str:
     cats = "".join(f'<a href="{esc(c["path"])}">{esc(c["name"])}</a>' for c in p["categories"][:2])
-    img = f'<img src="{esc(p["image"])}" alt="{esc(p["title"])}" loading="lazy" decoding="async">' if p.get("image") and not is_old_brand_image(p["image"]) else ""
-    ph = f'<span class="ph">{I.icon("document")}</span>' if not img else ""
+    img = L.scene_for(p["title"], " ".join(c["name"] for c in p["categories"]), os.path.basename(p.get("image") or ""))
+    ph = ""
     if featured:
         return f'''<article class="post-featured" data-reveal><div class="thumb">{img}{ph}</div><div class="body"><div class="cats" style="margin-bottom:12px">{cats}</div><h2><a href="{esc(p["path"])}">{esc(p["title"])}</a></h2><div class="meta small muted">{esc(fmt_date(p["date"]))} · {reading_time(p["html"])} min read · {esc(p["author_name"])}</div><div class="btn-row" style="margin-top:18px">{btn("Read article", p["path"], "primary")}</div></div></article>'''
     return f'''<article class="post-card" data-reveal style="--i:{i % 6}"><div class="thumb">{img}{ph}</div><div class="body"><div class="cats">{cats}</div><h3><a href="{esc(p["path"])}">{esc(p["title"])}</a></h3><div class="meta"><span>{esc(fmt_date(p["date"]))}</span><span>·</span><span>{reading_time(p["html"])} min read</span></div></div></article>'''
@@ -1823,9 +1847,11 @@ def build_post(p: dict, posts_by_slug: dict, tax: dict, all_posts: list[dict]) -
     cats = "".join(f'<a class="chip" href="{esc(c["path"])}">{esc(c["name"])}</a>' for c in p["categories"][:4])
     tags = "".join(f'<a href="/blog/tag/{esc(t)}/">{esc(tax["tags"][t]["name"])}</a>' for t in p.get("tags", []) if t in tax["tags"])
     author = tax["authors"].get(p["author_slug"] or "", {"name": p["author_name"], "path": "/blog/"})
-    hero_img = f'<div class="hero-img" data-reveal="scale"><img src="{esc(p["image"])}" alt="{esc(p["title"])}" fetchpriority="high"></div>' if p.get("image") and not is_old_brand_image(p["image"]) else ""
+    hero_img = f'<div class="hero-img" data-reveal="scale">{L.scene_for(p["title"], " ".join(c["name"] for c in p["categories"]), os.path.basename(p.get("image") or ""))}</div>'
     # inline CTA after the 3rd paragraph-ish block
     body_html = re.sub(r'<figure class="post-figure">(?:(?!</figure>).)*?TownsquareInteractive(?:(?!</figure>).)*?</figure>', "", p["html"], flags=re.S | re.I)
+    body_html = re.sub(r'<figure class="post-figure">(?:(?!</figure>).)*?<img[^>]+src="https?://(?:(?!</figure>).)*?</figure>', "", body_html, flags=re.S | re.I)
+    body_html = re.sub(r'<img[^>]+src="https?://[^"]*"[^>]*>', "", body_html, flags=re.I)
     cta = f'<div class="cta-inline"><div class="card tint-blue" style="display:flex;gap:18px;align-items:center;flex-wrap:wrap"><span class="icon-tile lg">{I.icon("zap")}</span><div style="flex:1;min-width:220px"><strong>Want more customers from search, maps and AI?</strong></div>{btn("Get a free quote", "/book-a-demo/", "primary", "sm")}</div></div>'
     parts = re.split(r"(?=<h2)", body_html, maxsplit=2)
     if len(parts) >= 3:
@@ -1857,7 +1883,7 @@ def build_post(p: dict, posts_by_slug: dict, tax: dict, all_posts: list[dict]) -
 <a href="https://www.facebook.com/sharer/sharer.php?u={esc(url)}" target="_blank" rel="noopener" aria-label="Share on Facebook"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M14 8h3V4h-3a4 4 0 00-4 4v3H7v4h3v6h4v-6h3l1-4h-4V8z"/></svg></a>
 <a href="https://twitter.com/intent/tweet?url={esc(url)}&text={esc(p["title"])}" target="_blank" rel="noopener" aria-label="Share on X">{I.icon("share")}</a>
 <a href="mailto:?subject={esc(p["title"])}&body={esc(url)}" aria-label="Share by email">{I.icon("mail")}</a></div>'''
-    ld = json.dumps({"@context": "https://schema.org", "@type": "BlogPosting", "headline": p["title"], "datePublished": p["date"], "author": {"@type": "Person", "name": author["name"]}, "publisher": {"@type": "Organization", "name": BRAND}, "image": None if is_old_brand_image(p.get("image")) else p.get("image"), "mainEntityOfPage": url, "description": p["excerpt"][:300]})
+    ld = json.dumps({"@context": "https://schema.org", "@type": "BlogPosting", "headline": p["title"], "datePublished": p["date"], "author": {"@type": "Person", "name": author["name"]}, "publisher": {"@type": "Organization", "name": BRAND}, "image": f"{SITE_URL}/assets/og.png", "mainEntityOfPage": url, "description": p["excerpt"][:300]})
     body = f'''<section class="article-hero">{orbs()}<div class="narrow" style="position:relative;z-index:1">{breadcrumb([("Home", "/"), ("Blog", "/blog/"), (p["categories"][0]["name"], p["categories"][0]["path"]) if p["categories"] else ("Article", ""), ])}
 <div class="chip-row" style="margin-bottom:16px">{cats}</div>
 <h1 class="words" style="font-size:clamp(2rem,4.4vw,3.4rem)">{esc(p["title"])}</h1>

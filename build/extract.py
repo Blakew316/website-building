@@ -684,7 +684,9 @@ def tabs_block(el: Tag) -> dict:
 def carousel_block(el: Tag) -> dict:
     slides = []
     for s in el.select(".et_pb_group_carousel_slide"):
-        texts = [b for b in rich_blocks(s) if b["type"] == "paragraph"]
+        # ignore icon-font glyphs (private-use characters) and other non-text fragments
+        texts = [b for b in rich_blocks(s) if b["type"] == "paragraph"
+                 and len(re.sub(r"[\uE000-\uF8FF\s]", "", clean_text(BeautifulSoup(b["html"], "lxml").get_text()))) > 2]
         quote = texts[0]["html"] if texts else ""
         author = ""
         if len(texts) > 1:
