@@ -254,7 +254,11 @@ def is_external(src: str) -> bool:
     return bool(re.match(r"^(https?:)?//", src or ""))
 
 
-def art_for(*hints: str, cls: str = "", default: str = "") -> str:
+def art_for(*hints: str, cls: str = "", default: str = "", lazy: bool = True, sizes: str = "(max-width: 720px) 100vw, 50vw") -> str:
+    """A licensed photo when the subject is recognisable, otherwise a drawn scene."""
+    key = L.photo_for(*hints, default=default if default in L.PHOTOS else "")
+    if key:
+        return L.photo_tag(key, " ".join(h for h in hints if h and not re.search(r"[/_]|\.(jpe?g|png|webp)$", h))[:120].strip(), cls=cls, lazy=lazy, sizes=sizes)
     c = f' class="art-wrap {cls}"' if cls else ' class="art-wrap"'
     return f"<div{c}>{L.scene_for(*hints, default=default)}</div>"
 
@@ -272,7 +276,7 @@ def img_tag(b: dict, cls: str = "", lazy: bool = True, sizes_hint: str = "", hin
         # people photos (webp portraits named after a person) → no photo; the initials avatar takes over
         if re.search(r"(?i)\.webp$", src.split("?")[0]) and re.search(r"^[A-Z][a-z]+[ -][A-Z][a-z]+", os.path.basename(src)) and not re.search(r"(?i)canine|clinic|hvac|plumb|roof|law|dental|salon", base):
             return ""
-        return art_for(alt, base, hint, cls=cls)
+        return art_for(alt, base, hint, cls=cls, lazy=lazy)
     wh = ""
     if b.get("w") and b.get("h"):
         wh = f' width="{b["w"]}" height="{b["h"]}"'
@@ -297,6 +301,10 @@ def copy_assets(out: str) -> None:
     os.makedirs(os.path.join(out, "assets", "v"), exist_ok=True)
     for name in ("og.png", "apple-touch-icon.png"):
         shutil.copy(os.path.join(src_dir, name), os.path.join(out, "assets", name))
+    photos_out = os.path.join(out, "assets", "photos")
+    if os.path.isdir(photos_out):
+        shutil.rmtree(photos_out)
+    shutil.copytree(os.path.join(src_dir, "photos"), photos_out)
     with open(os.path.join(out, "assets", "logo.svg"), "w", encoding="utf-8") as fh:
         fh.write(EMBLEM_SVG)
     # favicon: white emblem on a navy squircle
@@ -1420,7 +1428,7 @@ def build_home(page: dict, posts: list[dict]) -> str:
     s7 = flatten(S[7]["blocks"])
     h7 = [b for b in s7 if b["type"] == "heading"]
     p7 = [b for b in s7 if b["type"] == "paragraph"]
-    ind_cards = "".join(f'<a class="industry-card" href="{esc(h)}" data-reveal style="--i:{i % 6}"><span class="label"><span class="icon-tile {I.tint(i)}">{I.icon(ic)}</span>{esc(t)}{arrow()}</span></a>' for i, (h, t, ic) in enumerate(INDUSTRY_ITEMS))
+    ind_cards = "".join(f'<a class="industry-card" href="{esc(h)}" data-reveal style="--i:{i % 6}">{L.photo_tag(L.photo_for(t, h, default="local"), t + " marketing", sizes="(max-width: 720px) 100vw, 25vw")}<span class="label"><span class="icon-tile {I.tint(i)}">{I.icon(ic)}</span>{esc(t)}{chev()}</span></a>' for i, (h, t, ic) in enumerate(INDUSTRY_ITEMS))
     marquee = "".join(f'<span class="chip"><span class="icon-tile {I.tint(i)}">{I.icon(ic)}</span>{esc(t)}</span>' for i, (h, t, ic) in enumerate(INDUSTRY_ITEMS + INDUSTRY_ITEMS))
     industries = f'''<section class="section"><div class="container">
   <div class="split" style="margin-bottom:44px"><div data-reveal="left"><span class="eyebrow">Industries</span><h2>{heading_html(h7[0]["html"])}</h2></div><div></div></div>
@@ -1660,7 +1668,7 @@ def build_careers(main: dict, sub: dict) -> str:
             parts.append(f'<section class="section paper"><div class="container"><div class="section-head"><span class="eyebrow amber">Awards</span><h2>{heading_html(h["html"]) if h else "Award-winning workplace"}</h2></div><div class="grid grid-3">{tiles}</div></div></section>')
             continue
         if imgs and len(imgs) >= 6 and not blurbs:  # team photos
-            tiles = "".join(f'<div class="tile" style="aspect-ratio:1;border-radius:20px;overflow:hidden;background:var(--grad-soft)" data-reveal="scale" data-stagger>{L.SCENES[k]()}</div>' for b, k in zip(imgs, ["people", "local", "social", "website", "reporting", "search", "reviews", "email", "people", "display", "landscaping", "food"]))
+            tiles = "".join(f'<div class="tile" style="aspect-ratio:1;border-radius:20px;overflow:hidden;background:var(--grad-soft)" data-reveal="scale" data-stagger>{L.photo_tag(k, BRAND_SHORT + " team", sizes="(max-width: 720px) 50vw, 25vw", style="width:100%;height:100%;object-fit:cover")}</div>' for b, k in zip(imgs, ["team", "office", "colleagues", "smiling", "meeting", "support", "handshake", "tablet", "team", "office", "colleagues", "smiling"]))
             parts.append(f'<section class="section tight" id="life-here"><div class="container"><div class="grid grid-4">{tiles}</div></div></section>')
             continue
         if blurbs and all(b.get("icon") for b in blurbs):  # team quotes
@@ -1785,7 +1793,7 @@ def build_legal(page: dict) -> str:
 # ---------- blog ----------
 def post_card(p: dict, i: int = 0, featured: bool = False) -> str:
     cats = "".join(f'<a href="{esc(c["path"])}">{esc(c["name"])}</a>' for c in p["categories"][:2])
-    img = L.scene_for(p["title"], " ".join(c["name"] for c in p["categories"]), os.path.basename(p.get("image") or ""))
+    img = L.photo_tag(L.photo_for(p["title"], " ".join(c["name"] for c in p["categories"]), os.path.basename(p.get("image") or ""), default="pool", seed=p["slug"]), p["title"], sizes="(max-width: 720px) 100vw, 33vw")
     ph = ""
     if featured:
         return f'''<article class="post-featured" data-reveal><div class="thumb">{img}{ph}</div><div class="body"><div class="cats" style="margin-bottom:12px">{cats}</div><h2><a href="{esc(p["path"])}">{esc(p["title"])}</a></h2><div class="meta small muted">{esc(fmt_date(p["date"]))} · {reading_time(p["html"])} min read · {esc(p["author_name"])}</div><div class="btn-row" style="margin-top:18px">{btn("Read article", p["path"], "primary")}</div></div></article>'''
@@ -1847,7 +1855,7 @@ def build_post(p: dict, posts_by_slug: dict, tax: dict, all_posts: list[dict]) -
     cats = "".join(f'<a class="chip" href="{esc(c["path"])}">{esc(c["name"])}</a>' for c in p["categories"][:4])
     tags = "".join(f'<a href="/blog/tag/{esc(t)}/">{esc(tax["tags"][t]["name"])}</a>' for t in p.get("tags", []) if t in tax["tags"])
     author = tax["authors"].get(p["author_slug"] or "", {"name": p["author_name"], "path": "/blog/"})
-    hero_img = f'<div class="hero-img" data-reveal="scale">{L.scene_for(p["title"], " ".join(c["name"] for c in p["categories"]), os.path.basename(p.get("image") or ""))}</div>'
+    hero_img = f'<div class="hero-img" data-reveal="scale">{L.photo_tag(L.photo_for(p["title"], " ".join(c["name"] for c in p["categories"]), os.path.basename(p.get("image") or ""), default="pool", seed=p["slug"]), p["title"], lazy=False, sizes="(max-width: 800px) 100vw, 780px")}</div>'
     # inline CTA after the 3rd paragraph-ish block
     body_html = re.sub(r'<figure class="post-figure">(?:(?!</figure>).)*?TownsquareInteractive(?:(?!</figure>).)*?</figure>', "", p["html"], flags=re.S | re.I)
     body_html = re.sub(r'<figure class="post-figure">(?:(?!</figure>).)*?<img[^>]+src="https?://(?:(?!</figure>).)*?</figure>', "", body_html, flags=re.S | re.I)

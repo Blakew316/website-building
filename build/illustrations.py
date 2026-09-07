@@ -10,6 +10,8 @@ import hashlib
 import math
 import re
 
+import usmap
+
 NAVY, DEEP, STEEL, SKY, MIST, PAPER, PAPER2, LINE = "#0b1f3f", "#14325f", "#2a5a9c", "#4f86c6", "#8a9bbb", "#f5f6fa", "#eceef4", "#dfe4ee"
 _FONT = 'font-family="-apple-system,BlinkMacSystemFont,Inter,Helvetica,Arial,sans-serif"'
 W, H = 800, 500
@@ -253,6 +255,51 @@ KEYS = [
 ]
 
 
+# ---------------------------------------------------------------------------
+# Licensed photography (Adobe Stock free collection, licensed to the site owner's account,
+# self-hosted under /assets/photos/ at 1600w and 800w)
+# ---------------------------------------------------------------------------
+PHOTOS = ["colleagues", "contracting", "email", "finance", "food", "handshake", "hvac", "landscaping", "legal", "local", "meeting", "mobile", "office",
+          "plumbing", "remodel", "reporting", "reviews", "roofing", "search", "smiling", "social", "support", "tablet", "team", "towing", "tree", "website"]
+PHOTO_KEYS = [
+    (r"invoice|estimate|billing|payment|merchant|pricing|price|cost|budget|financ|account|tax|revenue|profit", "finance"),
+    (r"report|analytic|dashboard|insight|data|metric|kpi|track", "reporting"), (r"review|reputation|rating|testimonial|trust|star", "reviews"),
+    (r"email|e-mail|sms|text message|newsletter|inbox|follow[- ]up|automat|drip", "email"), (r"social|facebook|instagram|linkedin|tiktok|post", "social"),
+    (r"seo|search|rank|google|listing|director|citation|\bai\b|visib|keyword|found", "search"), (r"website|web design|site\b|landing|domain|hosting|page speed|wordpress", "website"),
+    (r"app\b|mobile|phone|smartphone|text", "mobile"), (r"support|help|service|headset|call center|phone call", "support"),
+    (r"partner|handshake|deal|agreement|referral|network", "handshake"), (r"tablet|field|job site|on-site|crew", "tablet"),
+    (r"hvac|heating|cooling|air condition|furnace", "hvac"), (r"plumb|drain|water heater", "plumbing"), (r"roof", "roofing"),
+    (r"remodel|kitchen|bath|renovat|cabinet", "remodel"), (r"general contract|contract|construct|builder|handyman", "contracting"), (r"\btree|arborist", "tree"),
+    (r"landscap|lawn|garden|yard", "landscaping"), (r"restaurant|food|beverage|bakery|caf|catering|dining|pizza|bar\b|grill|fish|fry|bbq|diner|brew|coffee|taco|burger|deli|chef", "food"),
+    (r"tow|auto|car\b|mechanic|truck|tire|body shop|collision|fleet|transport|captain|marine|boat", "towing"), (r"legal|law\b|lawyer|attorney|pllc|llc", "legal"),
+    (r"career|job|hiring|culture|employee|team|staff|people|office|meeting|leadership|about", "team"),
+    (r"local|store|shop|retail|business|customer|owner|small business|open", "local"),
+]
+_POOL = ["search", "reviews", "email", "social", "website", "reporting", "tablet", "mobile", "finance", "office", "meeting", "colleagues", "handshake", "support", "local", "smiling"]
+
+
+def photo_for(*hints: str, default: str = "", seed: str = "") -> str:
+    """Pick the photo key that best matches the hints. default may be a key or 'pool' (deterministic variety)."""
+    text = " ".join(h or "" for h in hints).lower()
+    for rx, key in PHOTO_KEYS:
+        if re.search(rx, text):
+            return key
+    if default == "pool":
+        h = int(hashlib.md5((seed or text).encode()).hexdigest()[:8], 16)
+        return _POOL[h % len(_POOL)]
+    return default if default in PHOTOS else ""
+
+
+def photo_tag(key: str, alt: str = "", cls: str = "", lazy: bool = True, sizes: str = "(max-width: 720px) 100vw, 50vw", style: str = "") -> str:
+    if key not in PHOTOS:
+        return ""
+    lz = ' loading="lazy" decoding="async"' if lazy else ' decoding="async" fetchpriority="high"'
+    c = f' class="{cls}"' if cls else ""
+    st = f' style="{style}"' if style else ""
+    a = alt.replace('"', "&quot;")
+    return f'<img{c} src="/assets/photos/{key}.jpg" srcset="/assets/photos/{key}-sm.jpg 800w, /assets/photos/{key}.jpg 1600w" sizes="{sizes}" alt="{a}" width="1600" height="1000"{lz}{st}>'
+
+
 def scene_for(*hints: str, default: str = "") -> str:
     text = " ".join(h or "" for h in hints).lower()
     for rx, key in KEYS:
@@ -304,24 +351,6 @@ def _proj(lat: float, lon: float):
 
 
 def market_map(links: dict | None = None, stat: tuple[str, str] | None = None) -> str:
-    """A real map of the lower 48 with one marker per market. links: slug fragment → href."""
-    outline = "M" + " L".join(f"{x} {y}" for x, y in (_proj(lat, lon) for lon, lat in US_OUTLINE)) + "Z"
-    dots = []
-    for i, (slug, (label, lat, lon)) in enumerate(sorted(CITIES.items(), key=lambda kv: kv[1][2])):
-        x, y = _proj(lat, lon)
-        href = (links or {}).get(slug)
-        body = (f'<circle class="ring" cx="{x}" cy="{y}" r="9" fill="none" stroke="{STEEL}" stroke-width="1.5" style="animation-delay:-{(i * 0.37) % 3.2:.1f}s"/>'
-                f'<circle cx="{x}" cy="{y}" r="5.5" fill="{NAVY}" stroke="#fff" stroke-width="2"/><title>{label}</title>')
-        dots.append(f'<a href="{href}" class="map-pin">{body}</a>' if href else f'<g class="map-pin">{body}</g>')
-    grid = ''.join(f'<path d="M0 {y} H{_MW}" stroke="{LINE}" stroke-width="1" opacity=".6"/>' for y in range(60, _MH, 60)) + ''.join(f'<path d="M{x} 0 V{_MH}" stroke="{LINE}" stroke-width="1" opacity=".6"/>' for x in range(60, _MW, 60))
-    stat_html = ""
-    if stat:
-        stat_html = (f'<g class="type"><rect x="{_MW-330}" y="{_MH-110}" width="300" height="78" rx="18" fill="#fff" stroke="{LINE}"/>'
-                     f'<text x="{_MW-306}" y="{_MH-76}" font-size="19" font-weight="700" fill="{NAVY}" {_FONT}>{stat[0]}</text>'
-                     f'<text x="{_MW-306}" y="{_MH-50}" font-size="13" fill="#6b7890" {_FONT}>{stat[1]}</text></g>')
-    return (f'<svg class="mock map" viewBox="0 0 {_MW} {_MH}" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Markets across the United States">'
-            f'<rect width="{_MW}" height="{_MH}" rx="26" fill="#fff"/>{grid}'
-            f'<path d="{outline}" fill="{PAPER2}" stroke="{MIST}" stroke-width="2" stroke-linejoin="round"/>'
-            f'<path d="{outline}" fill="url(#mapfade)" opacity=".5"/>'
-            f'<defs><linearGradient id="mapfade" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="{SKY}" stop-opacity=".18"/><stop offset="1" stop-color="{SKY}" stop-opacity="0"/></linearGradient></defs>'
-            f'{"".join(dots)}{stat_html}</svg>')
+    """A real map of the lower 48 (state boundaries, Albers projection) with one linked pin per market."""
+    markers = [(label, lat, lon, (links or {}).get(slug, "")) for slug, (label, lat, lon) in CITIES.items()]
+    return usmap.svg(markers, stat)
