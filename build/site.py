@@ -299,31 +299,31 @@ def logo(with_word: bool = True) -> str:
     return f'<a class="brand" href="/" aria-label="{BRAND} home">{LOGO_SVG}{word}</a>'
 
 
-def mega(items, cols=2, promo=None, big=False) -> str:
+def mega(items, cols=2, promo=None, big=False, label: str = "") -> str:
+    """Apple-style full-width panel: plain text columns, no icons, centred container."""
     out = []
     per = math.ceil(len(items) / cols)
     for c in range(cols):
         chunk = items[c * per:(c + 1) * per]
-        lis = "".join(
-            f'<a class="item" href="{esc(h)}"><span class="icon-tile {I.tint(i + c * per)}">{I.icon(ic)}</span><span><strong>{esc(t)}</strong></span></a>'
-            for i, (h, t, d, ic) in enumerate(chunk))
-        out.append(f"<div>{lis}</div>")
+        lis = "".join(f'<a class="item" href="{esc(h)}">{esc(t)}</a>' for h, t, d, ic in chunk)
+        title = f'<span class="mega-title">{esc(label)}</span>' if c == 0 and label else '<span class="mega-title" aria-hidden="true">&nbsp;</span>'
+        out.append(f"<div>{title}{lis}</div>")
     promo_html = ""
     if promo:
-        promo_html = f'<div class="promo"><div><strong>{esc(promo[0])}</strong></div>{btn(promo[2], promo[3], "primary", "sm")}</div>'
+        promo_html = f'<div class="promo"><span class="mega-title">Overview</span><a class="item big" href="{esc(promo[3])}">{esc(promo[0])}{chev()}</a></div>'
     total_cols = cols + (1 if promo else 0)
-    return f'<div class="mega" style="--cols:{total_cols}"><div class="mega-cols">{"".join(out)}{promo_html}</div></div>'
+    return f'<div class="mega" style="--cols:{total_cols}"><div class="container mega-cols">{"".join(out)}{promo_html}</div></div>'
 
 
 def header(current: str) -> str:
     def li(label, items, cols, promo):
         return (f'<li class="has-mega"><button class="nav-link" aria-expanded="false" aria-haspopup="true">{esc(label)}{I.icon("chevron")}</button>'
-                f'{mega(items, cols, promo)}</li>')
+                f'{mega(items, cols, promo, label=label)}</li>')
 
     nav = "".join([
         li("Grow", GROW_ITEMS, 2, ("Grow overview", "See how every channel works together to bring in customers.", "Explore Grow", "/grow/")),
         li("Run", RUN_ITEMS, 2, ("Run overview", "One connected platform to run the day-to-day.", "Explore Run", "/run/")),
-        li("Industries", [(h, t, "", ic) for h, t, ic in INDUSTRY_ITEMS] + [("/who-we-work-with/", "All industries", "", "grid")], 2, None),
+        li("Industries", [(h, t, "", ic) for h, t, ic in INDUSTRY_ITEMS], 2, ("All industries", "", "See all industries", "/who-we-work-with/")),
         li("Support", SUPPORT_ITEMS, 2, None),
         li("Company", COMPANY_ITEMS, 2, None),
         f'<li class="mobile-cta"><div class="btn-row">{btn("Book a demo", "/book-a-demo/", "primary")}<a class="btn btn-ghost" href="{esc(CLIENT_LOGIN_URL)}">{I.icon("key")}Client login</a><a class="btn btn-ghost" href="{PHONE_TEL}">{esc(PHONE)}</a></div></li>',
