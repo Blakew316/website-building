@@ -261,6 +261,26 @@ def img_tag(b: dict, cls: str = "", lazy: bool = True, sizes_hint: str = "") -> 
 # Layout
 # ---------------------------------------------------------------------------
 LOGO_SVG = open(os.path.join(HERE, "assets", "logo.svg"), encoding="utf-8").read().strip()
+# Fingerprinted asset URLs (filled in by copy_assets(); hashed files live under /assets/v/ so the
+# long-lived immutable cache header in netlify.toml only ever applies to content-addressed files).
+ASSET_URL = {"css": "/assets/main.css", "js": "/assets/main.js"}
+
+
+def copy_assets(out: str) -> None:
+    import hashlib
+    src_dir = os.path.join(HERE, "assets")
+    os.makedirs(os.path.join(out, "assets", "v"), exist_ok=True)
+    for name in ("logo.svg", "og.png", "apple-touch-icon.png"):
+        shutil.copy(os.path.join(src_dir, name), os.path.join(out, "assets", name))
+    shutil.copy(os.path.join(src_dir, "logo.svg"), os.path.join(out, "assets", "favicon.svg"))
+    for key, name in (("css", "main.css"), ("js", "main.js")):
+        data = open(os.path.join(src_dir, name), "rb").read()
+        digest = hashlib.sha256(data).hexdigest()[:10]
+        stem, ext = name.rsplit(".", 1)
+        hashed = f"{stem}.{digest}.{ext}"
+        with open(os.path.join(out, "assets", "v", hashed), "wb") as fh:
+            fh.write(data)
+        ASSET_URL[key] = f"/assets/v/{hashed}"
 
 
 def logo(with_word: bool = True) -> str:
@@ -399,7 +419,7 @@ def layout(page: dict, body: str, extra_head: str = "") -> str:
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
-<link rel="stylesheet" href="/assets/main.css">
+<link rel="stylesheet" href="{ASSET_URL["css"]}">
 <script type="application/ld+json">{ld}</script>
 {extra_head}
 </head>
@@ -409,7 +429,7 @@ def layout(page: dict, body: str, extra_head: str = "") -> str:
 {body}
 </main>
 {footer()}
-<script src="/assets/main.js" defer></script>
+<script src="{ASSET_URL["js"]}" defer></script>
 </body>
 </html>'''
 
@@ -2020,9 +2040,8 @@ def main():
         if not path.endswith(".html") and not path.startswith("/help-center/") and path not in ("/thank-you/", "/form-test/", "/locations-test/"):
             urls.append((path, priority))
 
-    # assets
-    shutil.copytree(os.path.join(HERE, "assets"), os.path.join(OUT, "assets"))
-    shutil.copy(os.path.join(HERE, "assets", "logo.svg"), os.path.join(OUT, "assets", "favicon.svg"))
+    # assets (CSS/JS are content-hashed so they can be cached immutably)
+    copy_assets(OUT)
 
     # home
     emit("/", build_home(pages["/"], posts), "1.0")
@@ -2123,7 +2142,7 @@ def main():
         "/automated-email-sms/ /automated-email-and-sms/ 301", "/business-management-platform/ /run/ 301", "/business-email-managment/ /business-email-management/ 301",
         "/free-report/ /directory-scan/ 301", "/social-ads/ /targeted-social-ads/ 301", "/what-is-crm/ /cloud-based-crm/ 301", "/contact/ /support/ 301",
         "/seo/ /search-engine-optimization/ 301", "/listings/ /business-listings/ 301", "/careers-site/ /careers/ 301", "/blog/category/google-reviews/google-business-profile/* /blog/category/google-business-profile/:splat 301",
-    ] + [f"{old} {new} 301" for old, new in LEGACY] + ["/* /404.html 404"])
+    ] + [f"{old} {new} 301!" for old, new in LEGACY] + ["/* /404.html 404"])
     write(OUT, "/_redirects", redirects)
     with open(os.path.join(OUT, ".nojekyll"), "w") as fh:
         fh.write("")

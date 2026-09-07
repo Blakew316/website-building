@@ -16,6 +16,7 @@ build/               generator (Python 3.11+, beautifulsoup4, lxml)
   site.py            content/*.json →  site/           (the finished website)
   icons.py           inline SVG icon set + animated product mockups
   assets/            main.css, main.js, logo.svg, og.png, apple-touch-icon.png
+                     (CSS/JS are copied to site/assets/v/ with a content hash in the filename)
   checklinks.py      verifies every internal link in site/ resolves
 content/             extracted content (pages, posts, taxonomy) — the "CMS"
 site/                the generated website — deploy this folder as-is
@@ -43,7 +44,9 @@ only needs to run again if the source archive changes.
   why a deploy from it shows Netlify's "Page not found". If you configured the site in the Netlify UI
   before this file existed, set *Site settings → Build & deploy → Publish directory* to `site` (or
   just trigger a new deploy — `netlify.toml` takes precedence). `site/_redirects` maps the old
-  site's dead URLs to their new homes and serves `404.html` for unknown paths.
+  site's dead URLs to their new homes and serves `404.html` for unknown paths. If the Netlify
+  production branch is currently the PR branch, switch it to `main` (Site settings → Build & deploy
+  → Branches) right after merging and before deleting the branch, then trigger a deploy.
 * **GitHub Pages** — `.github/workflows/pages.yml` builds and publishes `site/` on every push to
   `main` (enable Pages → "GitHub Actions" in the repo settings).
 * **Anything else** — upload the contents of `site/` to the web root.

@@ -1,16 +1,13 @@
 # Netlify deployment for the Meridian Local site.
-# The generated website lives in site/ (committed), so no build step is needed:
-# Netlify just publishes that folder. site/_redirects handles legacy URLs and the 404.
+# The generated website lives in site/ (committed), so there is no build step:
+# Netlify publishes that folder as-is. site/_redirects handles legacy URLs and the 404.
 [build]
   publish = "site"
-  command = ""
 
-[build.environment]
-  PYTHON_VERSION = "3.11"
-
-# Long-lived caching for static assets (HTML stays revalidated).
+# CSS/JS are content-hashed under /assets/v/ by build/site.py, so they can be cached
+# immutably; everything else (HTML, favicon, OG image) keeps Netlify's revalidating default.
 [[headers]]
-  for = "/assets/*"
+  for = "/assets/v/*"
   [headers.values]
     Cache-Control = "public, max-age=31536000, immutable"
 
