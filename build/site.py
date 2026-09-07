@@ -134,7 +134,9 @@ def heading_html(h: str, keep_br: bool = False) -> str:
     if text_of(h).isupper() and len(text_of(h)) > 20:
         return h
     h = re.sub(r"\s*<br\s*/?>\s*", " ", h)
-    return re.sub(r"\s+", " ", h).strip()
+    h = re.sub(r"\s+", " ", h).strip()
+    # headings never start lowercase (the archive had a few mid-sentence fragments promoted to headings)
+    return re.sub(r"^((?:<[^>]+>)*)([a-z])", lambda m: m.group(1) + m.group(2).upper(), h, count=1)
 
 
 def slugify(s: str) -> str:
@@ -254,9 +256,31 @@ def is_external(src: str) -> bool:
     return bool(re.match(r"^(https?:)?//", src or ""))
 
 
+CUR = {"path": ""}          # page being rendered (set by page_ctx / archive builders)
+_USED_PHOTOS: dict[str, list] = {}
+PHOTO_ALT = {"hvac": "tablet", "plumbing": "support", "roofing": "contracting", "remodel": "local", "contracting": "tablet", "tree": "landscaping",
+             "landscaping": "tree", "food": "local", "towing": "mobile", "legal": "handshake", "local": "reviews", "search": "website", "reviews": "mobile",
+             "email": "social", "social": "mobile", "website": "search", "reporting": "finance", "team": "office", "support": "colleagues", "tablet": "contracting"}
+
+
+def pick_photo(*hints: str, default: str = "") -> str:
+    """Photo key for the hints, avoiding a repeat of one already used on the current page."""
+    key = L.photo_for(*hints, default=default if default in L.PHOTOS else "")
+    if not key:
+        return ""
+    used = _USED_PHOTOS.setdefault(CUR["path"], [])
+    if key in used:
+        for alt in (PHOTO_ALT.get(key, ""), *L._POOL):
+            if alt and alt not in used:
+                key = alt
+                break
+    used.append(key)
+    return key
+
+
 def art_for(*hints: str, cls: str = "", default: str = "", lazy: bool = True, sizes: str = "(max-width: 720px) 100vw, 50vw") -> str:
     """A licensed photo when the subject is recognisable, otherwise a drawn scene."""
-    key = L.photo_for(*hints, default=default if default in L.PHOTOS else "")
+    key = pick_photo(*hints, default=default)
     if key:
         return L.photo_tag(key, " ".join(h for h in hints if h and not re.search(r"[/_]|\.(jpe?g|png|webp)$", h))[:120].strip(), cls=cls, lazy=lazy, sizes=sizes)
     c = f' class="art-wrap {cls}"' if cls else ' class="art-wrap"'
@@ -460,6 +484,7 @@ def layout(page: dict, body: str, extra_head: str = "") -> str:
 {extra_head}
 </head>
 <body>
+<div class="scroll-progress" aria-hidden="true"><i></i></div>
 {header(path)}
 <main id="main">
 {body}
@@ -529,7 +554,10 @@ def app_promo(title: str = None, sub: str = None) -> str:
     title = title or f"Get the {BRAND_SHORT} Business Platform app"
     sub = sub or "Manage your business from anywhere, on any device."
     apple = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M16.4 12.6c0-2.5 2-3.7 2.1-3.8-1.2-1.7-3-1.9-3.6-2-1.5-.2-3 .9-3.8.9-.8 0-2-.9-3.3-.9-1.7 0-3.3 1-4.2 2.5-1.8 3.1-.5 7.7 1.3 10.2.9 1.2 1.9 2.6 3.2 2.6 1.3-.1 1.8-.8 3.3-.8s2 .8 3.3.8c1.4 0 2.3-1.3 3.1-2.5 1-1.4 1.4-2.8 1.4-2.9-.1 0-2.8-1.1-2.8-4.1zM14 5.3c.7-.8 1.2-2 1-3.2-1 0-2.2.7-2.9 1.5-.6.7-1.2 1.9-1 3 1.1.1 2.2-.5 2.9-1.3z"/></svg>'
-    play = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M4 3.5v17l9.5-8.5L4 3.5z" opacity=".95"/><path d="M13.5 12l3.2-2.9 3.3 1.9c.9.5.9 1.5 0 2l-3.3 1.9L13.5 12z" opacity=".8"/><path d="M4 3.5l9.5 8.5-3.2 2.9L4 3.5z" opacity=".6"/></svg>'
+    play = ('<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.6 2.2c-.37.2-.6.6-.6 1.1v17.4c0 .5.23.9.6 1.1L14 12z" fill="#2196F3"/>'
+            '<path d="M3.6 2.2 14 12l3.3-3.3L5.1 1.9c-.5-.3-1.1-.3-1.5.3z" fill="#4CAF50"/>'
+            '<path d="M3.6 21.8c.4.6 1 .6 1.5.3l12.2-6.8L14 12z" fill="#F44336"/>'
+            '<path d="m17.3 8.7-3.3 3.3 3.3 3.3 3.9-2.2c1.1-.6 1.1-1.6 0-2.2z" fill="#FFC107"/></svg>')
     return f'''<section class="section"><div class="container"><div class="app-promo has-photo" data-reveal>
   <div class="bg-photo" aria-hidden="true">{L.photo_tag("mobile", "", lazy=True, sizes="(max-width: 1240px) 100vw, 1200px")}</div><div class="bg-veil" aria-hidden="true"></div>
   <div>
@@ -542,6 +570,11 @@ def app_promo(title: str = None, sub: str = None) -> str:
   </div>
   <div class="phone-mock device float" style="border-radius:44px;border:0;box-shadow:none;background:transparent">{I.mock_phone()}</div>
 </div></div></section>'''
+
+
+def section_photo(key: str) -> str:
+    """Full-bleed photo backdrop for a section, behind a paper veil."""
+    return f'<div class="bg-photo" aria-hidden="true">{L.photo_tag(key, "", sizes="100vw")}</div><div class="bg-veil" aria-hidden="true"></div>'
 
 
 def cta_band(title: str = "Ready to grow faster and run smarter?", sub: str = "Get a personalized look at how the platform fits your business. No generic pitch, no pressure.", primary=("Book a demo", "/book-a-demo/"), secondary=("See pricing", "/pricing/")) -> str:
@@ -1066,11 +1099,11 @@ def render_section(sec: dict, idx: int, ctx: dict, page: dict) -> str:
         form = next(b for b in flat if b["type"] == "form")
         fh = quote_form(source=path) if form["kind"] != "support" else support_form()
         head = intro_html(intro, "Get started", center=False, level=2)
-        return f'<section class="section paper" id="get-started"><div class="container"><div class="split"><div>{head}<ul class="checks" data-reveal><li>No long-term contracts</li><li>Unlimited US-based support</li><li>Monthly reporting and insights</li></ul></div><div data-reveal="scale">{fh}</div></div></div></section>'
+        return f'<section class="section paper has-photo" id="get-started">{section_photo("colleagues")}<div class="container"><div class="split"><div>{head}<ul class="checks" data-reveal><li>No long-term contracts</li><li>Unlimited US-based support</li><li>Monthly reporting and insights</li></ul></div><div data-reveal="scale">{fh}</div></div></div></section>'
     if ts == ["form"]:
         form = flat[0]
         fh = quote_form(source=path) if form["kind"] != "support" else support_form()
-        return f'<section class="section paper" id="get-started"><div class="narrow" data-reveal="scale">{fh}</div></section>'
+        return f'<section class="section paper has-photo" id="get-started">{section_photo("support")}<div class="narrow" data-reveal="scale">{fh}</div></section>'
 
     # --- pricing / steps ---
     if "pricing" in ts:
@@ -1100,7 +1133,7 @@ def render_section(sec: dict, idx: int, ctx: dict, page: dict) -> str:
         buttons = [b for b in flat if b["type"] == "button"]
         bh = f'<div class="btn-row center" style="margin-top:32px">{"".join(btn(b["text"], fix_href(b["href"], path, ctx["has_form"]), "ghost") for b in buttons)}</div>' if buttons else ""
         intro = [b for b in intro if b["type"] != "button"]
-        return f'<section class="section"><div class="container">{intro_html(intro, eyebrow or "What clients say")}{body}{bh}</div></section>'
+        return f'<section class="section wm"><div class="container">{intro_html(intro, eyebrow or "What clients say")}{body}{bh}</div></section>'
 
     # --- feature accordion ---
     if "feature_accordion" in ts:
@@ -1317,7 +1350,7 @@ def hero_from_section(sec: dict, ctx: dict, page: dict, variant: str = "auto") -
         sub_html = ""
     lead_html, extra = "", ""
     list_html_ = "".join(list_html(l) for l in lists)
-    note = '<div class="hero-note"><span class="avatars"><span></span><span></span><span></span><span></span></span><span><span class="stars">★★★★★</span> Rated 5.0 by 5,000+ businesses</span></div>' if variant != "quiet" else ""
+    note = '<div class="hero-note"><span class="gmark" aria-hidden="true"><svg viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg></span><span class="rating"><strong>5.0</strong><span class="stars">★★★★★</span></span><span>5,000+ Google reviews</span></div>' if variant != "quiet" else ""
     copy = f'<div class="hero-copy">{eb}<h1 class="words">{title}</h1>{sub_html}{lead_html}{extra}{list_html_}<div class="btn-row">{bh}</div>{note}</div>'
 
     bg_video = ""
@@ -1331,17 +1364,16 @@ def hero_from_section(sec: dict, ctx: dict, page: dict, variant: str = "auto") -
     if imgs:
         b = imgs[0]
         square = b.get("w") and b.get("h") and abs(b["w"] / b["h"] - 1) < 0.15
-        art = f'<div class="hero-art"><div class="glow"></div><div class="img-wrap rounded shadow tilt" data-reveal="scale" style="{"max-width:460px;margin-inline:auto" if square else ""}">{img_tag(b, lazy=False, hint=ctx["path"] + " " + text_of(title))}</div></div>'
+        chip = f'<div class="floating-card br"><span class="icon-tile amber">{I.icon("star")}</span><span><strong>Rated 5.0</strong>by 5,000+ local businesses</span></div><div class="floating-card tl"><span class="icon-tile teal">{I.icon("target")}</span><span><strong>New lead</strong>Booked from Google</span></div>'
+        art = f'<div class="hero-art"><div class="glow"></div><div class="img-wrap rounded shadow tilt" data-reveal="scale" style="{"max-width:460px;margin-inline:auto" if square else ""}">{img_tag(b, lazy=False, hint=ctx["path"] + " " + text_of(title))}</div>{chip}</div>'
         return f'<section class="hero">{orbs()}{bg_video}<div class="container hero-grid">{copy}{art}</div></section>'
     if variant == "center":
         return f'<section class="hero compact">{orbs()}{bg_video}<div class="container"><div class="hero-center">{copy}</div></div></section>'
     # default: copy + mockup
     key = ctx["path"] + " " + text_of(title) + " " + " ".join((s.get("alt") or s.get("title") or "") + " " + os.path.basename(s.get("src", "")).rsplit(".", 1)[0].replace("-", " ") for s in shots)
     mock = I.mock_for(key, text_of(title)[:18])
-    floating = ""
-    if "/" == ctx["path"]:
-        floating = (f'<div class="floating-card tl"><span class="icon-tile teal">{I.icon("target")}</span><span><strong>New lead</strong>Booked from Google</span></div>'
-                    f'<div class="floating-card br"><span class="icon-tile amber">{I.icon("star")}</span><span><strong>5.0 ★ review</strong>Request sent automatically</span></div>')
+    floating = (f'<div class="floating-card tl"><span class="icon-tile teal">{I.icon("target")}</span><span><strong>New lead</strong>Booked from Google</span></div>'
+                f'<div class="floating-card br"><span class="icon-tile amber">{I.icon("star")}</span><span><strong>5.0 ★ review</strong>Request sent automatically</span></div>')
     art = f'<div class="hero-art"><div class="glow"></div><div class="device tilt float" data-reveal="scale" style="padding:0;border:0;background:transparent;box-shadow:none">{mock}</div>{floating}</div>'
     return f'<section class="hero">{orbs()}{bg_video}<div class="container hero-grid">{copy}{art}</div></section>'
 
@@ -1350,6 +1382,8 @@ def hero_from_section(sec: dict, ctx: dict, page: dict, variant: str = "auto") -
 # Page builders
 # ---------------------------------------------------------------------------
 def page_ctx(page: dict, eyebrow: str = "", doc: bool = False) -> dict:
+    CUR["path"] = page["path"]
+    _USED_PHOTOS.pop(page["path"], None)
     ts = types([b for s in page["sections"] for b in s["blocks"]])
     return {"path": page["path"], "title": page["title"], "h1": page.get("h1", ""), "has_form": "form" in ts,
             "eyebrow": eyebrow, "form_anchor": "form" in ts, "doc": doc}
@@ -1433,7 +1467,7 @@ def build_home(page: dict, posts: list[dict]) -> str:
     ind_cards = "".join(f'<a class="industry-card" href="{esc(h)}" data-reveal style="--i:{i % 6}">{L.photo_tag(L.photo_for(t, h, default="local"), t + " marketing", sizes="(max-width: 720px) 100vw, 25vw")}<span class="label"><span class="icon-tile {I.tint(i)}">{I.icon(ic)}</span>{esc(t)}{chev()}</span></a>' for i, (h, t, ic) in enumerate(INDUSTRY_ITEMS))
     marquee = "".join(f'<span class="chip"><span class="icon-tile {I.tint(i)}">{I.icon(ic)}</span>{esc(t)}</span>' for i, (h, t, ic) in enumerate(INDUSTRY_ITEMS + INDUSTRY_ITEMS))
     industries = f'''<section class="section"><div class="container">
-  <div class="split" style="margin-bottom:44px"><div data-reveal="left"><span class="eyebrow">Industries</span><h2>{heading_html(h7[0]["html"])}</h2></div><div></div></div>
+  <div class="split" style="margin-bottom:44px"><div data-reveal="left"><span class="eyebrow">Industries</span><h2>{heading_html(h7[0]["html"])}</h2></div><div class="collage" data-reveal="right">{L.photo_tag("tablet", "Contractor reviewing leads on a tablet", sizes="(max-width: 720px) 100vw, 40vw")}{L.photo_tag("local", "Business owner turning the open sign", sizes="(max-width: 720px) 60vw, 24vw")}<span class="collage-chip"><span class="icon-tile teal">{I.icon("trend")}</span><span><strong>+38% more calls</strong>in the first 90 days</span></span></div></div>
   </div><div class="marquee" data-reveal><div class="marquee-track">{marquee}</div></div>
   <div class="container" style="margin-top:44px"><div class="grid grid-4">{ind_cards}</div><div class="btn-row center" style="margin-top:32px">{btn("See who we work with", "/who-we-work-with/", "ghost", arrow_icon=False)}</div></div></section>'''
     # expert support
@@ -1944,7 +1978,7 @@ def build_support(page: dict) -> str:
     sub = next((b for b in flat0 if b["type"] == "heading" and b is not h1), None)
     tiles = f'''<div class="contact-tiles" style="margin-top:36px"><div class="card" data-reveal><span class="icon-tile">{I.icon("phone")}</span><h3>Call us</h3><p><a href="{PHONE_TEL}"><strong>{esc(PHONE)}</strong></a><br><span class="small muted">{esc(HOURS)}</span></p></div><div class="card" data-reveal style="--i:1"><span class="icon-tile teal">{I.icon("mail")}</span><h3>Email</h3></div><div class="card" data-reveal style="--i:2"><span class="icon-tile violet">{I.icon("pin")}</span><h3>Visit</h3><p>{esc(ADDRESS)}</p></div></div>'''
     hero = f'<section class="hero compact">{orbs()}<div class="container"><div class="hero-center"><span class="eyebrow">Support</span><h1 class="words">{heading_html(h1["html"])}</h1></div>{tiles}</div></section>'
-    form = f'<section class="section paper" id="get-started"><div class="container"><div class="split" style="align-items:start"><div data-reveal="left"><span class="eyebrow">Talk to us</span><h2>Real people. Real answers.</h2><ul class="checks"><li>Charlotte, NC based support team</li><li>Phone support {esc(HOURS)}</li><li>24/7 email support</li></ul></div><div data-reveal="right">{support_form()}</div></div></div></section>'
+    form = f'<section class="section paper has-photo" id="get-started">{section_photo("support")}<div class="container"><div class="split" style="align-items:start"><div data-reveal="left"><span class="eyebrow">Talk to us</span><h2>Real people. Real answers.</h2><ul class="checks"><li>Charlotte, NC based support team</li><li>Phone support {esc(HOURS)}</li><li>24/7 email support</li></ul></div><div data-reveal="right">{support_form()}</div></div></div></section>'
     return layout(page, hero + form + cta_band("Prefer a walkthrough?", "Book a personalized demo and see the platform in action.", ("Book a demo", "/book-a-demo/"), ("Read the FAQ", "/frequently-asked-questions/")))
 
 
@@ -1972,7 +2006,7 @@ def build_book_demo(page: dict) -> str:
     rp = next((b for b in right if b["type"] == "paragraph"), None)
     hero = f'''<section class="hero">{orbs()}<div class="container hero-grid"><div class="hero-copy"><span class="eyebrow">Book a demo</span><h1 class="words">{heading_html(h1["html"])}</h1>
 <ul class="checks" style="margin-top:20px"><li>A one-hour personalized walkthrough</li><li>Built around your business, market and goals</li><li>No contracts — we earn your business monthly</li></ul>
-<div class="hero-note"><span class="avatars"><span></span><span></span><span></span><span></span></span><span><span class="stars">★★★★★</span> Rated 5.0 by 5,000+ businesses</span></div></div>
+<div class="hero-note"><span class="gmark" aria-hidden="true"><svg viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg></span><span class="rating"><strong>5.0</strong><span class="stars">★★★★★</span></span><span>5,000+ Google reviews</span></div></div>
 <div class="hero-art" data-reveal="right">{quote_form(title=text_of(rh["html"]) if rh else "Let's talk growth.", source="/book-a-demo/", cta="Request my demo")}</div></div></section>'''
     rest = "".join(render_section(s, i, ctx, page) for i, s in enumerate(S[1:], start=1))
     return layout(page, hero + rest + cta_band("Not ready for a demo?", "Start with a free directory scan and see how your business shows up online.", ("Free directory scan", "/directory-scan/"), ("Read the FAQ", "/frequently-asked-questions/")))

@@ -117,7 +117,6 @@ h6 { font-size: 0.95rem; }
   font-size: 0.78rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase;
   color: var(--blue-deep); margin-bottom: 1rem;
 }
-.eyebrow::before { content: ""; width: 18px; height: 2px; border-radius: 2px; background: var(--grad); }
 .eyebrow.teal { color: var(--steel); }
 .eyebrow.violet { color: var(--slate); }
 .eyebrow.amber { color: var(--deep); }
@@ -379,10 +378,11 @@ body.nav-open .nav-toggle span::after { top: 0; transform: rotate(-45deg); }
 .hero-copy .btn-row { margin-top: 28px; }
 .hero-copy .h1-sub { font-size: clamp(1.25rem, 2vw, 1.6rem); font-weight: 500; color: var(--ink-2); letter-spacing: -0.02em; margin: 0 0 18px; line-height: 1.3; }
 .hero-note { display: flex; align-items: center; gap: 14px; margin-top: 26px; color: var(--muted); font-size: .9rem; }
-.hero-note .avatars { display: flex; }
-.hero-note .avatars span { width: 30px; height: 30px; border-radius: 50%; border: 2px solid #fff; margin-left: -9px; background: rgba(42,90,156,.16); }
-.hero-note .avatars span:first-child { margin-left: 0; }
-.hero-note .stars { color: var(--amber); letter-spacing: 1px; }
+.hero-note .gmark { width: 40px; height: 40px; border-radius: 50%; background: #fff; box-shadow: var(--shadow-1); display: grid; place-items: center; flex: none; }
+.hero-note .gmark svg { width: 22px; height: 22px; }
+.hero-note .rating { display: inline-flex; align-items: center; gap: 8px; }
+.hero-note .rating strong { font-size: 1.15rem; color: var(--navy); font-weight: 700; letter-spacing: -.02em; }
+.hero-note .stars { color: #f5b400; letter-spacing: 1px; font-size: 1rem; }
 .hero-center { text-align: center; max-width: 860px; margin-inline: auto; }
 .hero-center .lead { margin-inline: auto; max-width: 680px; }
 .hero-center .btn-row { justify-content: center; }
@@ -435,7 +435,7 @@ img.broken { display: none; }
 @media (max-width: 720px) { .floating-card { display: none; } }
 
 /* svg mockups */
-.mock { width: 100%; height: auto; }
+.mock { width: 100%; height: auto; display: block; margin-inline: auto; max-width: 560px; }
 .mock .bar { animation: barGrow 1.6s var(--ease) forwards; transform-origin: bottom; transform: scaleY(0); }
 .mock .bar:nth-child(2) { animation-delay: .1s; } .mock .bar:nth-child(3) { animation-delay: .2s; } .mock .bar:nth-child(4) { animation-delay: .3s; } .mock .bar:nth-child(5) { animation-delay: .4s; } .mock .bar:nth-child(6) { animation-delay: .5s; } .mock .bar:nth-child(7) { animation-delay: .6s; }
 @keyframes barGrow { to { transform: scaleY(1); } }
@@ -895,3 +895,70 @@ mark { background: rgba(138,155,187,.35); border-radius: 3px; padding: 0 2px; co
 .statement h2 { margin-bottom: .4em; }
 .statement .lead { margin-bottom: 0; }
 @media (max-width: 800px) { .statement { grid-template-columns: 1fr; } }
+
+
+/* ==========================================================================
+   Brand texture & motion — emblem watermarks, section orbs, photo backdrops,
+   scroll progress, parallax targets, hover glows, drawn-in meridian lines
+   ========================================================================== */
+.scroll-progress { position: fixed; top: 0; left: 0; right: 0; height: 3px; z-index: 200; pointer-events: none; }
+.scroll-progress i { display: block; height: 100%; width: 0; background: var(--grad); transition: width .12s linear; }
+
+.section { position: relative; overflow: hidden; }
+.section > .container, .section > .narrow, .section > .wide { position: relative; z-index: 1; }
+.section.paper::before, .site-footer::before, .section.wm::before {
+  content: ""; position: absolute; right: -4%; top: 50%; width: clamp(360px, 40vw, 640px); aspect-ratio: 900/1060; transform: translateY(-50%) rotate(-6deg);
+  background: var(--navy); opacity: .035; pointer-events: none; z-index: 0;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg%20xmlns=%22http://www.w3.org/2000/svg%22%20viewBox=%220%200%20900%201060%22%20role=%22img%22%20aria-label=%22Charlie%20Company%20Media%20emblem%22%3E%20%3Cg%20fill=%22currentColor%22%20stroke=%22currentColor%22%20stroke-linecap=%22round%22%20stroke-linejoin=%22round%22%20color=%22%23000%22%3E%20%3C%21--%20anchor:%20ring,%20stock%20--%3E%20%3Ccircle%20cx=%22150%22%20cy=%22230%22%20r=%2246%22%20fill=%22none%22%20stroke-width=%2226%22/%3E%20%3Cpath%20d=%22M184%20264l32%2032%22%20fill=%22none%22%20stroke-width=%2226%22/%3E%20%3Cpath%20d=%22M110%20406L334%20236%22%20fill=%22none%22%20stroke-width=%2234%22/%3E%20%3Cpath%20d=%22M236%20262l-24%2034%22%20fill=%22none%22%20stroke-width=%2214%22/%3E%20%3C%21--%20anchor:%20shank%20below%20the%20globe,%20crown,%20arms%20--%3E%20%3Cpath%20d=%22M560%20772L704%20876%22%20fill=%22none%22%20stroke-width=%2232%22/%3E%20%3Cpath%20d=%22M500%20942C540%20990%20600%201010%20660%20998C730%20984%20786%20934%20806%20862C820%20812%20812%20764%20786%20726%22%20fill=%22none%22%20stroke-width=%2230%22/%3E%20%3Cpath%20d=%22M428%20878L444%201012L566%20986L520%20946Z%22%20stroke-width=%2214%22/%3E%20%3Cpath%20d=%22M716%20654L836%20694L792%20810L754%20732Z%22%20stroke-width=%2214%22/%3E%20%3C%21--%20globe%20--%3E%20%3Ccircle%20cx=%22445%22%20cy=%22516%22%20r=%22288%22%20fill=%22none%22%20stroke-width=%2224%22/%3E%20%3Cg%20fill=%22none%22%20stroke-width=%2212%22%3E%20%3Cellipse%20cx=%22445%22%20cy=%22516%22%20rx=%2292%22%20ry=%22288%22/%3E%20%3Cellipse%20cx=%22445%22%20cy=%22516%22%20rx=%22194%22%20ry=%22288%22/%3E%20%3Cpath%20d=%22M445%20228v576%22/%3E%20%3Cpath%20d=%22M225%20372h440M158%20516h574M225%20660h440%22/%3E%20%3C/g%3E%20%3C%21--%20North%20%26%20Central%20America%20--%3E%20%3Cpath%20d=%22M246%20332c30-26%2074-36%20118-36%2030%200%2058-4%2086-2%2028%202%2054%208%2078%2020%2014%208%2024%2022%2018%2038-6%2014-24%2018-36%2028-14%2012-6%2032-14%2048-10%2020-34%2026-46%2044-8%2012-8%2030-14%2044-4%2012-12%2022-22%2030-8-22-20-42-40-56-20-12-46-14-64-30-14-12-18-32-30-46-10-12-28-14-38-26-10-14-8-38%204-56z%22%20stroke-width=%2210%22/%3E%20%3Cpath%20d=%22M486%20292c14-6%2034-4%2050%206-8%2012-24%2018-42%2016z%22%20stroke-width=%228%22/%3E%20%3C%21--%20South%20America%20--%3E%20%3Cpath%20d=%22M434%20536c30-12%2066-10%2092%2012%2026%2020%2038%2052%2034%2084-4%2040-26%2074-54%20100-10%2010-18%2024-26%2036-6-26-14-52-22-78-8-28-24-54-24-84%200-24%204-48%2012-70z%22%20stroke-width=%2210%22/%3E%20%3C%21--%20eagle%20--%3E%20%3Cg%20stroke-width=%229%22%3E%20%3Cpath%20d=%22M432%20156C330%20118%20210%2092%2070%2062c30%2014%2060%2026%2092%2038-40-2-80-2-120%202%2040%2010%2080%2018%20120%2030-30%208-60%2018-88%2032%2038-4%2076-6%20114-4-22%2012-44%2026-64%2042%2056-18%20114-30%20174-30%2046%200%2092%2010%20134%2026z%22/%3E%20%3Cpath%20d=%22M468%20156C570%20118%20690%2092%20830%2062c-30%2014-60%2026-92%2038%2040-2%2080-2%20120%202-40%2010-80%2018-120%2030%2030%208%2060%2018%2088%2032-38-4-76-6-114-4%2022%2012%2044%2026%2064%2042-56-18-114-30-174-30-46%200-92%2010-134%2026z%22/%3E%20%3Cpath%20d=%22M404%20132c10-28%2030-44%2050-44s40%2016%2048%2044c8%2028%204%2060-12%2084-10%2016-24%2024-40%2024s-30-8-40-24c-16-24-20-56-6-84z%22/%3E%20%3Cpath%20d=%22M418%20268l-16%2030%2034-4%208%2026%208-26%2034%204-16-30z%22%20stroke-width=%228%22/%3E%20%3Cpath%20d=%22M428%20112c-20-22-46-36-66-56-8-8-8-20%200-28%2010-8%2024-4%2032%206%2020%2024%2034%2050%2050%2076z%22/%3E%20%3Cpath%20fill-rule=%22evenodd%22%20d=%22M394%2030a28%2028%200%201%200%20.1%200zM400%2050a5%205%200%201%200%20.1%200z%22%20stroke=%22none%22/%3E%20%3Cpath%20d=%22M372%2048l-40%204%2036%2016z%22%20stroke-width=%228%22/%3E%20%3Cpath%20d=%22M426%20292l-14%2022M436%20294v22M446%20292l12%2022%22%20fill=%22none%22%20stroke-width=%229%22/%3E%20%3C/g%3E%20%3C/g%3E%20%3C/svg%3E%20") no-repeat center / contain; mask: url("data:image/svg+xml,%3Csvg%20xmlns=%22http://www.w3.org/2000/svg%22%20viewBox=%220%200%20900%201060%22%20role=%22img%22%20aria-label=%22Charlie%20Company%20Media%20emblem%22%3E%20%3Cg%20fill=%22currentColor%22%20stroke=%22currentColor%22%20stroke-linecap=%22round%22%20stroke-linejoin=%22round%22%20color=%22%23000%22%3E%20%3C%21--%20anchor:%20ring,%20stock%20--%3E%20%3Ccircle%20cx=%22150%22%20cy=%22230%22%20r=%2246%22%20fill=%22none%22%20stroke-width=%2226%22/%3E%20%3Cpath%20d=%22M184%20264l32%2032%22%20fill=%22none%22%20stroke-width=%2226%22/%3E%20%3Cpath%20d=%22M110%20406L334%20236%22%20fill=%22none%22%20stroke-width=%2234%22/%3E%20%3Cpath%20d=%22M236%20262l-24%2034%22%20fill=%22none%22%20stroke-width=%2214%22/%3E%20%3C%21--%20anchor:%20shank%20below%20the%20globe,%20crown,%20arms%20--%3E%20%3Cpath%20d=%22M560%20772L704%20876%22%20fill=%22none%22%20stroke-width=%2232%22/%3E%20%3Cpath%20d=%22M500%20942C540%20990%20600%201010%20660%20998C730%20984%20786%20934%20806%20862C820%20812%20812%20764%20786%20726%22%20fill=%22none%22%20stroke-width=%2230%22/%3E%20%3Cpath%20d=%22M428%20878L444%201012L566%20986L520%20946Z%22%20stroke-width=%2214%22/%3E%20%3Cpath%20d=%22M716%20654L836%20694L792%20810L754%20732Z%22%20stroke-width=%2214%22/%3E%20%3C%21--%20globe%20--%3E%20%3Ccircle%20cx=%22445%22%20cy=%22516%22%20r=%22288%22%20fill=%22none%22%20stroke-width=%2224%22/%3E%20%3Cg%20fill=%22none%22%20stroke-width=%2212%22%3E%20%3Cellipse%20cx=%22445%22%20cy=%22516%22%20rx=%2292%22%20ry=%22288%22/%3E%20%3Cellipse%20cx=%22445%22%20cy=%22516%22%20rx=%22194%22%20ry=%22288%22/%3E%20%3Cpath%20d=%22M445%20228v576%22/%3E%20%3Cpath%20d=%22M225%20372h440M158%20516h574M225%20660h440%22/%3E%20%3C/g%3E%20%3C%21--%20North%20%26%20Central%20America%20--%3E%20%3Cpath%20d=%22M246%20332c30-26%2074-36%20118-36%2030%200%2058-4%2086-2%2028%202%2054%208%2078%2020%2014%208%2024%2022%2018%2038-6%2014-24%2018-36%2028-14%2012-6%2032-14%2048-10%2020-34%2026-46%2044-8%2012-8%2030-14%2044-4%2012-12%2022-22%2030-8-22-20-42-40-56-20-12-46-14-64-30-14-12-18-32-30-46-10-12-28-14-38-26-10-14-8-38%204-56z%22%20stroke-width=%2210%22/%3E%20%3Cpath%20d=%22M486%20292c14-6%2034-4%2050%206-8%2012-24%2018-42%2016z%22%20stroke-width=%228%22/%3E%20%3C%21--%20South%20America%20--%3E%20%3Cpath%20d=%22M434%20536c30-12%2066-10%2092%2012%2026%2020%2038%2052%2034%2084-4%2040-26%2074-54%20100-10%2010-18%2024-26%2036-6-26-14-52-22-78-8-28-24-54-24-84%200-24%204-48%2012-70z%22%20stroke-width=%2210%22/%3E%20%3C%21--%20eagle%20--%3E%20%3Cg%20stroke-width=%229%22%3E%20%3Cpath%20d=%22M432%20156C330%20118%20210%2092%2070%2062c30%2014%2060%2026%2092%2038-40-2-80-2-120%202%2040%2010%2080%2018%20120%2030-30%208-60%2018-88%2032%2038-4%2076-6%20114-4-22%2012-44%2026-64%2042%2056-18%20114-30%20174-30%2046%200%2092%2010%20134%2026z%22/%3E%20%3Cpath%20d=%22M468%20156C570%20118%20690%2092%20830%2062c-30%2014-60%2026-92%2038%2040-2%2080-2%20120%202-40%2010-80%2018-120%2030%2030%208%2060%2018%2088%2032-38-4-76-6-114-4%2022%2012%2044%2026%2064%2042-56-18-114-30-174-30-46%200-92%2010-134%2026z%22/%3E%20%3Cpath%20d=%22M404%20132c10-28%2030-44%2050-44s40%2016%2048%2044c8%2028%204%2060-12%2084-10%2016-24%2024-40%2024s-30-8-40-24c-16-24-20-56-6-84z%22/%3E%20%3Cpath%20d=%22M418%20268l-16%2030%2034-4%208%2026%208-26%2034%204-16-30z%22%20stroke-width=%228%22/%3E%20%3Cpath%20d=%22M428%20112c-20-22-46-36-66-56-8-8-8-20%200-28%2010-8%2024-4%2032%206%2020%2024%2034%2050%2050%2076z%22/%3E%20%3Cpath%20fill-rule=%22evenodd%22%20d=%22M394%2030a28%2028%200%201%200%20.1%200zM400%2050a5%205%200%201%200%20.1%200z%22%20stroke=%22none%22/%3E%20%3Cpath%20d=%22M372%2048l-40%204%2036%2016z%22%20stroke-width=%228%22/%3E%20%3Cpath%20d=%22M426%20292l-14%2022M436%20294v22M446%20292l12%2022%22%20fill=%22none%22%20stroke-width=%229%22/%3E%20%3C/g%3E%20%3C/g%3E%20%3C/svg%3E%20") no-repeat center / contain;
+}
+.section.wm::before { left: -6%; right: auto; transform: translateY(-50%) rotate(6deg); }
+.section:not(.paper):not(.hero)::after, .section.paper::after {
+  content: ""; position: absolute; width: 520px; height: 520px; border-radius: 50%; pointer-events: none; z-index: 0; filter: blur(80px);
+  background: radial-gradient(circle, rgba(42,90,156,.16), rgba(42,90,156,0) 65%); right: -180px; top: -160px; animation: drift 26s var(--ease-io) infinite alternate;
+}
+.section:nth-of-type(even)::after { right: auto; left: -200px; top: auto; bottom: -220px; background: radial-gradient(circle, rgba(79,134,198,.16), rgba(79,134,198,0) 65%); }
+.section.tight::after { display: none; }
+.section.has-photo .bg-photo { position: absolute; inset: 0; z-index: 0; }
+.section.has-photo .bg-photo img { width: 100%; height: 100%; object-fit: cover; display: block; will-change: transform; }
+.section.has-photo .bg-veil { position: absolute; inset: 0; z-index: 0; background: linear-gradient(90deg, rgba(245,246,250,.97) 0%, rgba(245,246,250,.9) 50%, rgba(245,246,250,.7) 100%); }
+.section.has-photo::before, .section.has-photo::after { display: none; }
+.site-footer { position: relative; overflow: hidden; }
+.site-footer > .container { position: relative; z-index: 1; }
+.site-footer::before { opacity: .05; right: -8%; top: 46%; width: clamp(420px, 44vw, 720px); }
+
+
+/* cards glow with a gradient hairline on hover */
+.card::after, .industry-card::after, .post-card::after, .plan::after {
+  content: ""; position: absolute; inset: 0; border-radius: inherit; padding: 1.5px; opacity: 0; pointer-events: none; z-index: 3;
+  background: var(--grad); -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask-composite: exclude;
+  transition: opacity .45s var(--ease);
+}
+.card:hover::after, .industry-card:hover::after, .post-card:hover::after, .plan:hover::after { opacity: .9; }
+.post-card, .plan { position: relative; }
+
+/* primary button sheen */
+.btn-primary, .btn-blue { position: relative; overflow: hidden; }
+.btn-primary::after, .btn-blue::after { content: ""; position: absolute; top: -50%; bottom: -50%; left: -60%; width: 40%; background: linear-gradient(100deg, rgba(255,255,255,0), rgba(255,255,255,.7), rgba(255,255,255,0)); transform: skewX(-18deg); transition: left .7s var(--ease); pointer-events: none; }
+.btn-primary:hover::after, .btn-blue:hover::after { left: 130%; }
+
+/* industry tiles: label rises, photo zooms */
+.industry-card .label { transition: transform .5s var(--ease), box-shadow .5s var(--ease); }
+.industry-card:hover .label { transform: translateY(-4px); box-shadow: var(--shadow-2); }
+
+/* photo collage (home → industries) */
+.collage { position: relative; aspect-ratio: 5/4; }
+.collage img { position: absolute; border-radius: 22px; object-fit: cover; box-shadow: var(--shadow-2); border: 4px solid #fff; }
+.collage img:first-child { left: 0; top: 0; width: 74%; height: 76%; }
+.collage img:nth-child(2) { right: 0; bottom: 0; width: 52%; height: 56%; animation: float 8s ease-in-out infinite; }
+.collage-chip { position: absolute; left: 6%; bottom: 8%; background: #fff; border-radius: 16px; padding: 10px 14px; display: flex; gap: 10px; align-items: center; font-size: .85rem; color: var(--ink-2); box-shadow: var(--shadow-2); animation: float 6s ease-in-out infinite; animation-delay: -3s; }
+.collage-chip strong { display: block; font-size: .95rem; }
+.collage-chip .icon-tile { width: 28px; height: 28px; }
+.collage-chip .icon-tile svg { width: 22px; height: 22px; }
+@media (max-width: 720px) { .collage { aspect-ratio: 4/3; } }
+
+/* hero art photo: gentle breathing so heroes never sit still */
+.hero-art .img-wrap.tilt { animation: float 9s ease-in-out infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  .section::after, .collage img, .collage-chip, .hero-art .img-wrap.tilt { animation: none !important; }
+}

@@ -360,6 +360,26 @@
   }
   $$('[data-search-open]').forEach((b) => b.addEventListener('click', () => { location.href = '/search/'; }));
 
+  /* ---------- scroll progress + parallax ---------- */
+  const bar = $('.scroll-progress i');
+  const px = $$('.section.has-photo .bg-photo img, .has-photo .bg-photo img, .hero-art');
+  let ticking = false;
+  const onFrame = () => {
+    ticking = false;
+    const h = document.documentElement;
+    if (bar) bar.style.width = Math.min(100, (h.scrollTop / Math.max(1, h.scrollHeight - h.clientHeight)) * 100) + '%';
+    if (reduced) return;
+    const vh = window.innerHeight;
+    px.forEach((el) => {
+      const r = el.getBoundingClientRect();
+      if (r.bottom < 0 || r.top > vh) return;
+      const p = (r.top + r.height / 2 - vh / 2) / vh; // -0.5..0.5 around the viewport centre
+      el.style.transform = (el.classList.contains('hero-art') ? '' : 'scale(1.12) ') + 'translateY(' + (p * (el.classList.contains('hero-art') ? -24 : 36)).toFixed(1) + 'px)';
+    });
+  };
+  window.addEventListener('scroll', () => { if (!ticking) { ticking = true; requestAnimationFrame(onFrame); } }, { passive: true });
+  onFrame();
+
   /* ---------- current year ---------- */
   $$('[data-year]').forEach((el) => { el.textContent = new Date().getFullYear(); });
 })();

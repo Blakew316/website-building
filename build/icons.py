@@ -190,29 +190,31 @@ def mock_dashboard(label: str = "Leads this month") -> str:
 
 
 def mock_search(brand: str = "Your business") -> str:
+    """Search-everywhere diagram: the business at the centre, every surface around it, a #1 result below."""
     nodes = [("Google", 0), ("Maps", 60), ("AI search", 120), ("Directories", 180), ("Social", 240), ("Reviews", 300)]
     g = ""
     import math
+    cx, cy = 280, 230
     for i, (name, ang) in enumerate(nodes):
         a = math.radians(ang - 90)
-        x, y = 280 + 170 * math.cos(a), 210 + 150 * math.sin(a)
+        x, y = cx + 176 * math.cos(a), cy + 150 * math.sin(a)
         col = ["#2a5a9c", "#5a6e96", "#4f86c6", "#8a9bbb", "#8a9bbb", "#2a5a9c"][i]
-        g += f'<line x1="280" y1="210" x2="{x:.0f}" y2="{y:.0f}" stroke="{col}" stroke-width="1.5" opacity=".35" stroke-dasharray="4 5"/>'
-        g += f'<g class="type"><rect x="{x-52:.0f}" y="{y-18:.0f}" width="104" height="36" rx="18" fill="#fff" stroke="#e3e7ef"/><circle cx="{x-32:.0f}" cy="{y:.0f}" r="6" fill="{col}"/><text x="{x-20:.0f}" y="{y+4:.0f}" font-size="12" font-weight="600" fill="#16305a" {_FONT}>{name}</text></g>'
-    return f'''<svg class="mock" viewBox="0 0 560 420" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Search everywhere diagram">
+        g += f'<line x1="{cx}" y1="{cy}" x2="{x:.0f}" y2="{y:.0f}" stroke="{col}" stroke-width="1.5" opacity=".35" stroke-dasharray="4 5"/>'
+        g += f'<g class="type"><rect x="{x-52:.0f}" y="{y-18:.0f}" width="104" height="36" rx="18" fill="#fff" stroke="#e3e7ef"/><circle cx="{x-32:.0f}" cy="{y:.0f}" r="6" fill="{col}"/><text x="{x-20:.0f}" y="{y+4:.0f}" font-size="12" font-weight="600" fill="#0b1f3f" {_FONT}>{name}</text></g>'
+    return f'''<svg class="mock" viewBox="0 0 560 500" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Search everywhere diagram">
 <defs><linearGradient id="msg" x1="0" x2="1" y1="0" y2="1"><stop offset="0" stop-color="#dde5f1"/><stop offset="1" stop-color="#e9eef6"/></linearGradient></defs>
-<circle class="ring" cx="280" cy="210" r="70" fill="none" stroke="#2a5a9c" stroke-width="2"/>
-<circle class="ring" cx="280" cy="210" r="70" fill="none" stroke="#4f86c6" stroke-width="2" style="animation-delay:-1.6s"/>
-<g class="spin" style="transform-origin:280px 210px"><circle cx="280" cy="210" r="110" fill="none" stroke="#e3e7ef" stroke-dasharray="3 8"/></g>
+<circle class="ring" cx="{cx}" cy="{cy}" r="70" fill="none" stroke="#2a5a9c" stroke-width="2"/>
+<circle class="ring" cx="{cx}" cy="{cy}" r="70" fill="none" stroke="#4f86c6" stroke-width="2" style="animation-delay:-1.6s"/>
+<g class="spin" style="transform-origin:{cx}px {cy}px"><circle cx="{cx}" cy="{cy}" r="110" fill="none" stroke="#e3e7ef" stroke-dasharray="3 8"/></g>
 {g}
-<circle cx="280" cy="210" r="46" fill="url(#msg)"/>
-<circle cx="280" cy="210" r="46" fill="none" stroke="#fff" stroke-width="3"/>
-<text x="280" y="206" font-size="11" fill="#2a5a9c" text-anchor="middle" opacity=".9" {_FONT}>{brand[:16]}</text>
-<text x="280" y="222" font-size="12" font-weight="700" fill="#0b1f3f" text-anchor="middle" {_FONT}>Found</text>
-<rect x="150" y="360" width="260" height="40" rx="20" fill="#fff" stroke="#e3e7ef"/>
-<circle cx="172" cy="380" r="7" fill="none" stroke="#2a5a9c" stroke-width="2"/><path d="M177 385l4 4" stroke="#2a5a9c" stroke-width="2" stroke-linecap="round"/>
-<text class="type" x="192" y="384" font-size="12" fill="#16305a" {_FONT}>best plumber near me</text>
-<rect class="pulse" x="352" y="368" width="44" height="24" rx="12" fill="#eef2f8"/><text x="374" y="384" font-size="11" font-weight="700" fill="#1e4b8f" text-anchor="middle" {_FONT}>#1</text>
+<circle cx="{cx}" cy="{cy}" r="46" fill="url(#msg)"/>
+<circle cx="{cx}" cy="{cy}" r="46" fill="none" stroke="#fff" stroke-width="3"/>
+<text x="{cx}" y="{cy-4}" font-size="11" fill="#2a5a9c" text-anchor="middle" opacity=".9" {_FONT}>Your business</text>
+<text x="{cx}" y="{cy+12}" font-size="12" font-weight="700" fill="#0b1f3f" text-anchor="middle" {_FONT}>Found</text>
+<rect x="150" y="440" width="260" height="40" rx="20" fill="#fff" stroke="#e3e7ef"/>
+<circle cx="172" cy="460" r="7" fill="none" stroke="#2a5a9c" stroke-width="2"/><path d="M177 465l4 4" stroke="#2a5a9c" stroke-width="2" stroke-linecap="round"/>
+<text class="type" x="192" y="464" font-size="12" fill="#16305a" {_FONT}>best plumber near me</text>
+<rect class="pulse" x="352" y="448" width="44" height="24" rx="12" fill="#eef2f8"/><text x="374" y="464" font-size="11" font-weight="700" fill="#1e4b8f" text-anchor="middle" {_FONT}>#1</text>
 </svg>'''
 
 
