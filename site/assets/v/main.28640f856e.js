@@ -179,7 +179,11 @@
     const items = Array.from(r.children); if (items.length < 2) return;
     let i = 0; items[0].classList.add('on');
     if (reduced) return;
-    setInterval(() => { items[i].classList.remove('on'); i = (i + 1) % items.length; items[i].classList.add('on'); }, 2600);
+    setInterval(() => {
+      const prev = items[i]; prev.classList.remove('on'); prev.classList.add('out');
+      setTimeout(() => prev.classList.remove('out'), 450);
+      i = (i + 1) % items.length; items[i].classList.add('on');
+    }, 2200);
   });
 
   /* ---------- image fallbacks ---------- */

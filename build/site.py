@@ -756,8 +756,8 @@ def video_card(b: dict, hint: str = "") -> str:
 
 
 def rotating_html(b: dict) -> str:
-    items = "".join(f"<span>{esc(i)}</span>" for i in b["items"])
-    return f'<h3 class="h2 center" style="margin:0">{esc(b.get("prefix") or "")} <span class="rotating grad-text">{items}</span></h3>'
+    items = "".join(f'<span class="grad-text">{esc(i)}</span>' for i in b["items"])
+    return f'<div class="rotator" data-reveal><h3 class="h2">{esc(b.get("prefix") or "")}</h3><div class="rotating h2" aria-live="polite">{items}</div></div>'
 
 
 def faq_html(b: dict) -> str:
@@ -1719,6 +1719,10 @@ def build_careers(main: dict, sub: dict) -> str:
         if imgs and len(imgs) >= 6 and not blurbs:  # team photos
             tiles = "".join(f'<div class="tile" style="aspect-ratio:1;border-radius:20px;overflow:hidden;background:var(--grad-soft)" data-reveal="scale" data-stagger>{L.photo_tag(k, BRAND_SHORT + " team", sizes="(max-width: 720px) 50vw, 25vw", style="width:100%;height:100%;object-fit:cover")}</div>' for b, k in zip(imgs, ["team", "office", "colleagues", "smiling", "meeting", "support", "handshake", "tablet", "team", "office", "colleagues", "smiling"]))
             parts.append(f'<section class="section tight" id="life-here"><div class="container"><div class="grid grid-4">{tiles}</div></div></section>')
+            continue
+        if not imgs and not blurbs and all(b["type"] in ("heading", "paragraph") for b in flat):  # statement + call to action
+            h = first_heading(sec["blocks"])
+            parts.append(f'<section class="section paper has-photo">{section_photo("smiling")}<div class="container"><div class="section-head"><span class="eyebrow">Join us</span><h2>{heading_html(h["html"]) if h else ""}</h2></div><div class="btn-row center">{btn("Explore open roles", "#open-roles", "primary", "lg")}{btn("Meet the team", "#life-here", "ghost", "lg")}</div></div></section>')
             continue
         if blurbs and all(b.get("icon") for b in blurbs):  # team quotes
             h = first_heading(sec["blocks"]); p = next((b for b in flat if b["type"] == "paragraph" and b not in [x for bl in blurbs for x in bl["blocks"]]), None)

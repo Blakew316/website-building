@@ -800,9 +800,13 @@ mark { background: rgba(138,155,187,.35); border-radius: 3px; padding: 0 2px; co
 .tabs .tab-list button.on { color: var(--ink); border-bottom-color: var(--ink); }
 .tabs .tab-pane { display: none; animation: fadeUp .4s var(--ease); }
 .tabs .tab-pane.on { display: block; }
-.rotating { display: inline-grid; text-align: left; vertical-align: bottom; }
-.rotating > span { grid-area: 1 / 1; opacity: 0; transform: translateY(12px); transition: opacity .6s var(--ease), transform .6s var(--ease); }
-.rotating > span.on { opacity: 1; transform: none; }
+.rotator { text-align: center; }
+.rotator h3 { margin: 0 0 6px; color: var(--text); font-weight: 500; }
+.rotating { display: grid; justify-items: center; margin: 0; }
+.rotating > span { grid-area: 1 / 1; opacity: 0; transform: translateY(14px); transition: opacity .3s var(--ease), transform .4s var(--ease); white-space: nowrap; pointer-events: none; }
+.rotating > span.out { opacity: 0; transform: translateY(-14px); transition: opacity .22s ease, transform .3s var(--ease); }
+.rotating > span.on { opacity: 1; transform: none; transition-delay: .18s; }
+@media (max-width: 720px) { .rotating > span { white-space: normal; } }
 .timeline { position: relative; display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 20px; }
 .timeline::before { content: ""; position: absolute; left: 6%; right: 6%; top: 26px; height: 2px; background: linear-gradient(90deg, var(--blue), var(--violet), var(--teal)); opacity: .35; }
 .timeline .step { padding-top: 22px; background: transparent; border: 0; box-shadow: none; }
