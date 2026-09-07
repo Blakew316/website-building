@@ -1,0 +1,36 @@
+{
+ "slug": "ssl-what-it-is-and-how-it-helps-you",
+ "path": "/blog/ssl-what-it-is-and-how-it-helps-you/",
+ "title": "SSL: What It Is and How It Helps You",
+ "seo_title": "SSL: What It Is and How It Helps You",
+ "excerpt": "Take a look at your browser’s address bar. See the https at the front of the URL? Unlike sites that only have http, the s in https indicates that the site you’re visiting uses SSL for an extra layer of security. While this is a good thing to know, what does it mean? SSL: Secure",
+ "date": "2018-10-22",
+ "author_slug": "victoria-putnamtownsquareinteractive-com",
+ "author_name": "Victoria Putnam",
+ "categories": [
+  {
+   "slug": "domains",
+   "path": "/blog/category/domains/",
+   "name": "Domains"
+  },
+  {
+   "slug": "ssl",
+   "path": "/blog/category/ssl/",
+   "name": "SSL"
+  },
+  {
+   "slug": "website-design",
+   "path": "/blog/category/website-design/",
+   "name": "Website Design"
+  }
+ ],
+ "image": "https://townsquareinteractive.com/files/2018/10/marcos-mayer-735961-unsplash.jpg",
+ "html": "<p>Take a look at your browser’s address bar. See the https at the front of the URL? Unlike sites that only have http, the s in https indicates that the site you’re visiting uses SSL for an extra layer of security. While this is a good thing to know, what does it mean?</p>\n<h3>SSL: Secure Socket Layers and Why You Need Them</h3>\n<p>To start, SSL stands for secure socket layers. That means the site uses security certificates for encryption and authentication.</p>\n<p>In nontechnical terms: SSL helps to establish a secure connection between your computer and the server that hosts the website, keeping your sensitive information safe as it’s transmitted back and forth. That includes email addresses, phone numbers and even payment information. Just like you have less to worry about when you visit an SSL-secured site, your potential customers won’t have to worry about their personal information being stolen when they submit a form through your website.</p>\n<h3>Hey Google! Give Me a Boost!</h3>\n<p>Another benefit of SSL? Having a secure site with https encryption factors into Google’s ranking algorithm. That means your SEO strategy gets a boost without any extra effort on your part—and that could translate into improved rankings for your business in search results. And THAT could mean more potential customers visiting your site, and THAT… well, you get the picture. There’s not really a downside to using SSL.</p>\n<h3>Want to Learn More?</h3>\n<p>We use SSL on the Meridian Local website because we care about our clients’ security—especially with the number of forms we work with. If you want to learn more about SSL and why using it is a good practice, fill out the form below to schedule a conversation with one of our digital marketing experts.</p>\n<figure class=\"post-figure\"><img src=\"https://townsquareinteractive.com/files/2018/10/marcos-mayer-735961-unsplash.jpg\" alt=\"\" loading=\"lazy\" decoding=\"async\" width=\"1714\" height=\"1000\"></figure>",
+ "prev": "/blog/love-your-craft-captain-max-patterson/",
+ "next": "/blog/meet-eloria-downs/",
+ "tags": [
+  "security",
+  "ssl",
+  "victoria-putnam"
+ ]
+}
